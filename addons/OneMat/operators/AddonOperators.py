@@ -33,7 +33,7 @@ class OneMatOperator(bpy.types.Operator):
         context.active_object.location.x += addon_prefs.number
         return {'FINISHED'}
     
-
+# Step01 模型处理面板操作部分
 # 减选Mesh物体操作部分
 class OneMat_OT_SelectMesh(bpy.types.Operator):
     '''在当前选择物体中减选Mesh物体'''
@@ -101,6 +101,8 @@ class OneMat_OT_ToggleWire(bpy.types.Operator):
 
         return {'FINISHED'}
 
+
+# Step02 UV处理面板操作部分
 # 命名第一套UV贴图操作部分
 class OneMat_OT_RenameFirstUVMap(bpy.types.Operator):
     bl_idname = "object.rename_first_uvmap"
@@ -223,3 +225,65 @@ class OneMat_RemoveUVMapByIndex(bpy.types.Operator):
         self.report({'INFO'}, f"已从 {removed_count} 个对象中删除第 {uv_index} 个 UV")
         return {'FINISHED' if removed_count > 0 else 'CANCELLED'}
 
+
+# Step03 材质处理面板操作部分
+class OneMat_OT_AddTextureToMaterials(bpy.types.Operator):
+    bl_idname = "one_mat.add_texture_to_materials"
+    bl_label = "添加图像纹理"
+    bl_description = "为选中物体的所有材质添加图像纹理节点"
+
+    def execute(self, context):
+        scene = context.scene
+        prefix = scene.onemat_image_prefix
+        name = scene.onemat_image_name
+        suffix = scene.onemat_image_suffix
+        width = scene.onemat_image_width
+        height = scene.onemat_image_height
+        use_alpha = scene.onemat_image_alpha
+
+        image_name = f"{prefix}{name}{suffix}"
+
+        # 如果图像不存在则创建
+        if image_name not in bpy.data.images:
+            bpy.data.images.new(
+                name=image_name,
+                width=width,
+                height=height,
+                alpha=use_alpha,
+                float_buffer=False,
+            )
+
+        image = bpy.data.images[image_name]
+
+        # 遍历所有选中物体的材质
+        for obj in context.selected_objects:
+            if obj.type != 'MESH':
+                continue
+
+            for slot in obj.material_slots:
+                mat = slot.material
+                if not mat or not mat.use_nodes:
+                    continue
+
+                nodes = mat.node_tree.nodes
+                links = mat.node_tree.links
+
+                # 查找是否已有同名图像节点
+                tex_node = next((n for n in nodes if n.type == 'TEX_IMAGE' and n.image and n.image.name == image_name), None)
+
+                if not tex_node:
+                    tex_node = nodes.new(type="ShaderNodeTexImage")
+                    tex_node.image = image
+                    tex_node.label = image_name
+                    tex_node.name = image_name
+                    tex_node.location = (-300, 300)
+
+                # 设置为活动纹理节点
+                for n in nodes:
+                    if hasattr(n, "select"):
+                        n.select = False
+                tex_node.select = True
+                nodes.active = tex_node
+
+        self.report({'INFO'}, f"已添加图像：{image_name}")
+        return {'FINISHED'}

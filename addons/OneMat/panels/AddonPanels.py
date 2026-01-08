@@ -40,6 +40,7 @@ class OneMat_PT_MeshPanel(BasePanel, bpy.types.Panel):
         return True
 
 # UV处理面板
+@reg_order(1)
 class OneMat_PT_UVPanel(bpy.types.Panel):
     bl_label = "Step02 UV处理"
     bl_idname = "onemat_pt_uv_panel"
@@ -92,4 +93,33 @@ class OneMat_PT_UVPanel(bpy.types.Panel):
         row.operator("object.remove_uvmap_by_index", text="删除指定序号UV贴图", icon='X')
 
 # 材质处理面板
+@reg_order(2)
+class OneMat_PT_MaterialPanel(BasePanel, bpy.types.Panel):
+    bl_label = "Step03 材质处理"
+    bl_idname = "onemat_pt_material_panel"
 
+    def draw(self, context):
+        layout = self.layout
+        scene = context.scene
+
+        box = layout.box()
+        box.label(text="新建图像设置")
+
+        col = box.column(align=True)
+        col.prop(scene, "onemat_image_prefix", text="前缀")
+        col.prop(scene, "onemat_image_name", text="名称")
+        col.prop(scene, "onemat_image_suffix", text="后缀")
+
+        row = box.row(align=True)
+        row.prop(scene, "onemat_image_width", text="宽度")
+        row.prop(scene, "onemat_image_height", text="高度")
+
+        col = box.column(align=True)
+        col.prop(scene, "onemat_image_color", text="颜色")
+        col.prop(scene, "onemat_image_alpha", text="Alpha")
+        
+
+        row = box.row()
+        row.operator("one_mat.add_texture_to_materials", text="批量添加图像贴图", icon='TEXTURE')
+
+        
