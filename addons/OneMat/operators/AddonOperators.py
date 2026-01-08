@@ -171,30 +171,18 @@ class ONE_MAT_OT_SetRenderUVForSelected(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        obj = context.object
-        if not obj or obj.type != 'MESH':
-            self.report({'WARNING'}, "请选中一个网格物体")
-            return {'CANCELLED'}
+        uv_name = context.scene.onemat_uv_name
 
-        active_uv = obj.data.uv_layers.active
-        if not active_uv:
-            self.report({'WARNING'}, "没有活动UV图层")
-            return {'CANCELLED'}
-
-        uv_name = active_uv.name
-        changed = 0
-
-        for o in context.selected_objects:
-            if o.type != 'MESH':
+        for obj in context.selected_objects:
+            if not obj or obj.type != 'MESH':
                 continue
-
-            for i, layer in enumerate(o.data.uv_layers):
-                if layer.name == uv_name:
-                    o.data.uv_layers.active_render_index = i
-                    changed += 1
+            o_data = obj.data
+            for i, uv in enumerate(o_data.uv_layers):
+                if uv.name == uv_name:
+                    o_data.uv_layers.active_render_index = i
                     break
 
-        self.report({'INFO'}, f"已设置 {changed} 个物体的渲染UV为: {uv_name}")
+        self.report({'INFO'}, f"已将 {uv_name} 设为渲染UV")
         return {'FINISHED'}
 
 
@@ -207,30 +195,21 @@ class ONE_MAT_OT_SetActiveUVForSelected(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        obj = context.object
-        if not obj or obj.type != 'MESH':
-            self.report({'WARNING'}, "请选中一个网格物体")
-            return {'CANCELLED'}
-
-        active_uv = obj.data.uv_layers.active
-        if not active_uv:
-            self.report({'WARNING'}, "没有活动UV图层")
-            return {'CANCELLED'}
-
-        uv_name = active_uv.name
-        changed = 0
-
-        for o in context.selected_objects:
-            if o.type != 'MESH':
+        uv_name = context.scene.onemat_uv_name  # 当前UI中选中的UV名称
+        
+        for obj in context.selected_objects:
+            if obj.type != 'MESH':
                 continue
-
-            for i, layer in enumerate(o.data.uv_layers):
-                if layer.name == uv_name:
-                    o.data.uv_layers.active_index = i
-                    changed += 1
+            
+            uv_layers = obj.data.uv_layers
+            for i, uv in enumerate(uv_layers):
+                if uv.name == uv_name:
+                    obj.data.uv_layers.active_index = i
                     break
-
-        self.report({'INFO'}, f"已设置 {changed} 个物体的编辑UV为: {uv_name}")
+            else:
+                self.report({'WARNING'}, f"{obj.name} 没有 UV 名称为 {uv_name}")
+        
+        self.report({'INFO'}, f"已将 {uv_name} 设为编辑UV")
         return {'FINISHED'}
 
 
