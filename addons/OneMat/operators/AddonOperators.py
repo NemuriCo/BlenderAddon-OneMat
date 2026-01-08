@@ -107,11 +107,14 @@ class OBJECT_OT_RenameFirstUVMap(bpy.types.Operator):
     bl_label = "Rename First UVMap"
 
     def execute(self, context):
-        obj = context.active_object
-        if obj and obj.type == 'MESH' and obj.data.uv_layers:
-            obj.data.uv_layers[0].name = "UVMap"
-            return {'FINISHED'}
-        return {'CANCELLED'}
+        count = 0
+        for obj in context.selected_objects:
+            if obj.type == 'MESH' and obj.data.uv_layers:
+                obj.data.uv_layers[0].name = "UVMap"
+                count += 1
+        self.report({'INFO'}, f"已命名 {count} 个对象的第一套 UVMap 为 UVMap")
+        return {'FINISHED'} if count > 0 else {'CANCELLED'}
+
 
 # 删除多余UV贴图操作部分
 class OBJECT_OT_RemoveExtraUVMAPS(bpy.types.Operator):
@@ -119,13 +122,19 @@ class OBJECT_OT_RemoveExtraUVMAPS(bpy.types.Operator):
     bl_label = "Remove Extra UVMaps"
 
     def execute(self, context):
-        obj = context.active_object
-        if obj and obj.type == 'MESH':
-            uv_layers = obj.data.uv_layers
-            while len(uv_layers) > 1:
-                uv_layers.remove(uv_layers[-1])
-            return {'FINISHED'}
-        return {'CANCELLED'}
+        count = 0
+        for obj in context.selected_objects:
+            if obj.type == 'MESH':
+                uv_layers = obj.data.uv_layers
+                removed = 0
+                while len(uv_layers) > 1:
+                    uv_layers.remove(uv_layers[-1])
+                    removed += 1
+                if removed > 0:
+                    count += 1
+        self.report({'INFO'}, f"已清理 {count} 个对象的多余 UVMap")
+        return {'FINISHED'} if count > 0 else {'CANCELLED'}
+
 
 # 批量创建UV贴图操作部分
 class OBJECT_OT_AddUVMapBatch(bpy.types.Operator):
@@ -151,5 +160,78 @@ class OBJECT_OT_CheckCurrentUVMap(bpy.types.Operator):
             self.report({'INFO'}, f"当前UV贴图：{active_uv}")
             return {'FINISHED'}
         return {'CANCELLED'}
+
+#批量激活部分
+
+# 设置所有选中物体的渲染激活UV
+class ONE_MAT_OT_SetRenderUVForSelected(bpy.types.Operator):
+    bl_idname = "one_mat.set_render_uv_for_selected"
+    bl_label = "设置为渲染UV"
+    bl_description = "将当前UV图层设置为所有选中物体的渲染UV"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        obj = context.object
+        if not obj or obj.type != 'MESH':
+            self.report({'WARNING'}, "请选中一个网格物体")
+            return {'CANCELLED'}
+
+        active_uv = obj.data.uv_layers.active
+        if not active_uv:
+            self.report({'WARNING'}, "没有活动UV图层")
+            return {'CANCELLED'}
+
+        uv_name = active_uv.name
+        changed = 0
+
+        for o in context.selected_objects:
+            if o.type != 'MESH':
+                continue
+
+            for i, layer in enumerate(o.data.uv_layers):
+                if layer.name == uv_name:
+                    o.data.uv_layers.active_render_index = i
+                    changed += 1
+                    break
+
+        self.report({'INFO'}, f"已设置 {changed} 个物体的渲染UV为: {uv_name}")
+        return {'FINISHED'}
+
+
+
+# 设置所有选中物体的编辑激活UV
+class ONE_MAT_OT_SetActiveUVForSelected(bpy.types.Operator):
+    bl_idname = "one_mat.set_active_uv_for_selected"
+    bl_label = "设置为编辑UV"
+    bl_description = "将当前UV图层设置为所有选中物体的编辑UV"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        obj = context.object
+        if not obj or obj.type != 'MESH':
+            self.report({'WARNING'}, "请选中一个网格物体")
+            return {'CANCELLED'}
+
+        active_uv = obj.data.uv_layers.active
+        if not active_uv:
+            self.report({'WARNING'}, "没有活动UV图层")
+            return {'CANCELLED'}
+
+        uv_name = active_uv.name
+        changed = 0
+
+        for o in context.selected_objects:
+            if o.type != 'MESH':
+                continue
+
+            for i, layer in enumerate(o.data.uv_layers):
+                if layer.name == uv_name:
+                    o.data.uv_layers.active_index = i
+                    changed += 1
+                    break
+
+        self.report({'INFO'}, f"已设置 {changed} 个物体的编辑UV为: {uv_name}")
+        return {'FINISHED'}
+
 
 

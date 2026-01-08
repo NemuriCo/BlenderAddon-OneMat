@@ -77,4 +77,10 @@ class ONEMAT_PT_UVPanel(bpy.types.Panel):
         row = box.row()
         row.template_list("MESH_UL_uvmaps", "", context.object.data if context.object and context.object.type == 'MESH' else None,
                           "uv_layers", context.scene, "onemat_uv_index", rows=2)
+        
+        layout.label(text="设置当前UV到所有选中物体：")
+        row = layout.row(align=True)
+        row.operator("one_mat.set_active_uv_for_selected", text="设为编辑UV")
+        row.operator("one_mat.set_render_uv_for_selected", text="设为渲染UV")
+
 
