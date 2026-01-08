@@ -21,7 +21,19 @@ bl_info = {
     "category": "3D View"
 }
 
-_addon_properties = {}
+_addon_properties = {
+    bpy.types.Scene: {
+        "onemat_uv_name": bpy.props.StringProperty(
+            name="UV贴图名称",
+            default="UVMap"
+        ),
+        "onemat_uv_index": bpy.props.IntProperty(
+            name="UV Index",
+            default=0
+        ),
+    }
+}
+
 
 
 # You may declare properties like following, framework will automatically add and remove them.

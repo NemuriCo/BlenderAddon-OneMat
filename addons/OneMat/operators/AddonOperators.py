@@ -46,7 +46,9 @@ class OneMat_OT_SelectMesh(bpy.types.Operator):
         return True
 
     def execute(self, context):
-        self.report({'INFO'}, "执行：减选Mesh物体")
+        for obj in context.selected_objects:
+            if obj.type == 'MESH':
+                obj.select_set(False)
         return {'FINISHED'}
 
 
@@ -58,10 +60,45 @@ class OneMat_OT_ToggleWire(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return True
+        return context.area and context.area.type == 'VIEW_3D'
 
     def execute(self, context):
-        self.report({'INFO'}, "执行：线框模式切换")
+        wm = context.window_manager
+        area = context.area
+
+        if not area or area.type != 'VIEW_3D':
+            self.report({'WARNING'}, "请在3D视图中使用")
+            return {'CANCELLED'}
+
+        for space in area.spaces:
+            if space.type == 'VIEW_3D':
+                shading = space.shading
+
+                # 临时属性存储状态
+                key_mode = "onemat_prev_shading_type"
+                key_xray = "onemat_prev_xray"
+
+                current_mode = shading.type
+                current_xray = shading.show_xray
+
+                # 判断是否是目标状态
+                is_in_wire = (current_mode == 'WIREFRAME' and current_xray == False)
+
+                if not is_in_wire:
+                    # 保存当前状态
+                    wm[key_mode] = current_mode
+                    wm[key_xray] = current_xray
+                    # 切换到 Wireframe + 关闭 X-Ray
+                    shading.type = 'WIREFRAME'
+                    shading.show_xray = False
+                    self.report({'INFO'}, "已切换到线框模式")
+                else:
+                    # 还原上次状态
+                    shading.type = wm.get(key_mode, 'SOLID')
+                    shading.show_xray = wm.get(key_xray, True)
+                    self.report({'INFO'}, "已恢复上次视图模式")
+                break
+
         return {'FINISHED'}
 
 # 命名第一套UV贴图操作部分
