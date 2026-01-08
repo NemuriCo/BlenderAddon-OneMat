@@ -288,13 +288,34 @@ class OneMat_OT_AddTextureToMaterials(bpy.types.Operator):
 
         self.report({'INFO'}, f"已添加图像：{image_name}")
         return {'FINISHED'}
-    
+
+# 图像纹理节点管理 
 class ONEMAT_OT_DetectImageTextureNodes(bpy.types.Operator):
     bl_idname = "one_mat.detect_image_texture_nodes"
     bl_label = "检测图像纹理节点"
 
     def execute(self, context):
-        # TODO: 实现节点检测逻辑
+        scene = context.scene
+        scene.onemat_image_nodes.clear()
+
+        image_names = set()
+
+        for obj in context.selected_objects:
+            if obj.type != 'MESH':
+                continue
+            for slot in obj.material_slots:
+                mat = slot.material
+                if mat and mat.use_nodes:
+                    for node in mat.node_tree.nodes:
+                        if node.type == 'TEX_IMAGE' and node.image:
+                            image_names.add(node.image.name)
+
+        for name in sorted(image_names):
+            item = scene.onemat_image_nodes.add()
+            item.name = name
+
+        scene.onemat_image_node_index = 0
+        self.report({'INFO'}, f"找到 {len(image_names)} 个图像纹理节点")
         return {'FINISHED'}
 
 class ONEMAT_OT_SetImageNodeActive(bpy.types.Operator):
@@ -302,7 +323,31 @@ class ONEMAT_OT_SetImageNodeActive(bpy.types.Operator):
     bl_label = "激活所选图像纹理节点"
 
     def execute(self, context):
-        # TODO: 实现激活逻辑
+        scene = context.scene
+        if scene.onemat_image_node_index >= len(scene.onemat_image_nodes):
+            self.report({'WARNING'}, "未选择图像纹理节点")
+            return {'CANCELLED'}
+
+        selected_name = scene.onemat_image_nodes[scene.onemat_image_node_index].name
+
+        count = 0
+        for obj in context.selected_objects:
+            if obj.type != 'MESH':
+                continue
+            for slot in obj.material_slots:
+                mat = slot.material
+                if mat and mat.use_nodes:
+                    nodes = mat.node_tree.nodes
+                    tex_node = next((n for n in nodes if n.type == 'TEX_IMAGE' and n.image and n.image.name == selected_name), None)
+                    if tex_node:
+                        for n in nodes:
+                            if hasattr(n, "select"):
+                                n.select = False
+                        tex_node.select = True
+                        nodes.active = tex_node
+                        count += 1
+
+        self.report({'INFO'}, f"已设为活动节点：{selected_name}（{count} 个材质）")
         return {'FINISHED'}
 
 class ONEMAT_OT_RemoveSelectedImageNode(bpy.types.Operator):
@@ -310,5 +355,34 @@ class ONEMAT_OT_RemoveSelectedImageNode(bpy.types.Operator):
     bl_label = "删除所选图像纹理节点"
 
     def execute(self, context):
-        # TODO: 实现删除逻辑
+        scene = context.scene
+        if scene.onemat_image_node_index >= len(scene.onemat_image_nodes):
+            self.report({'WARNING'}, "未选择图像纹理节点")
+            return {'CANCELLED'}
+
+        target_name = scene.onemat_image_nodes[scene.onemat_image_node_index].name
+        count = 0
+
+        for obj in context.selected_objects:
+            if obj.type != 'MESH':
+                continue
+            for slot in obj.material_slots:
+                mat = slot.material
+                if mat and mat.use_nodes:
+                    nodes = mat.node_tree.nodes
+                    links = mat.node_tree.links
+                    for node in nodes:
+                        if node.type == 'TEX_IMAGE' and node.image and node.image.name == target_name:
+                            # 断开所有连接
+                            for input in node.inputs:
+                                for link in input.links:
+                                    links.remove(link)
+                            nodes.remove(node)
+                            count += 1
+
+        # 从列表中移除
+        scene.onemat_image_nodes.remove(scene.onemat_image_node_index)
+        scene.onemat_image_node_index = max(0, scene.onemat_image_node_index - 1)
+
+        self.report({'INFO'}, f"已删除图像节点：{target_name}（{count} 个节点）")
         return {'FINISHED'}

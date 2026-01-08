@@ -129,8 +129,29 @@ class OneMat_PT_MaterialPanel(BasePanel, bpy.types.Panel):
         row = box.row(align=True)
         row.operator("one_mat.detect_image_texture_nodes", text="检测当前图像纹理节点", icon='FILE_REFRESH')
 
-        box.template_list("ONEMAT_UL_ImageNodeList", "", scene, "onemat_image_nodes", scene, "onemat_image_nodes_index")
+        # 图像纹理节点列表
+        layout = self.layout
+        scene = context.scene
 
+        layout.operator("one_mat.refresh_image_nodes", icon="FILE_REFRESH")
+
+        row = box.row()
+        row.template_list(
+            "UI_UL_list",
+            "onemat_image_node_list",
+            scene,
+            "onemat_image_nodes",
+            scene,
+            "onemat_image_node_index",
+            rows=4
+        )
+        
+        row = layout.row(align=True)
+        row.operator("one_mat.activate_image_node", icon="RESTRICT_SELECT_OFF")
+        row.operator("one_mat.remove_image_node", icon="X")
+
+
+        # 图像纹理节点操作
         row = box.row(align=True)
         row.operator("one_mat.set_image_node_active", text="激活图像纹理节点", icon='RESTRICT_VIEW_OFF')
         row.operator("one_mat.remove_selected_image_node", text="删除图像纹理节点", icon='X')
