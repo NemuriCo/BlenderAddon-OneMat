@@ -12,7 +12,7 @@ ACTIVE_ADDON = "OneMat"
 
 # The path of the blender executable. Blender2.93 is the minimum version required
 # Blender可执行文件的路径，Blender2.93是所需的最低版本
-BLENDER_EXE_PATH = "C:/Program Files/Blender Foundation/blender-4.5.3-windows-x64/blender.exe"
+BLENDER_EXE_PATH = "C:/Program Files/Blender Foundation/blender-4.5.2-windows-x64/blender.exe"
 
 # Linux example Linux示例
 # BLENDER_EXE_PATH = "/usr/local/blender/blender-3.6.0-linux-x64/blender"
@@ -33,7 +33,6 @@ IS_EXTENSION = False
 # You can override the default path by setting the path manually
 # 您可以通过手动设置路径来覆盖默认插件安装路径 或者在config.ini中设置
 # BLENDER_ADDON_PATH = "C:/software/general/Blender/Blender3.5/3.5/scripts/addons/"
-BLENDER_ADDON_PATH = "C:/Program Files/Blender Foundation/blender-4.5.3-windows-x64/4.5\scripts/addons_core"
 if os.path.exists(BLENDER_EXE_PATH):
     BLENDER_ADDON_PATH = default_blender_addon_path(BLENDER_EXE_PATH)
 
