@@ -72,18 +72,19 @@ class OneMat_PT_UVPanel(bpy.types.Panel):
         box = layout.box()
         box.label(text="UV贴图处理")
 
-        row = box.row()
-        row.operator("object.check_current_uvmap", text="检测当前UV贴图", icon='VIEWZOOM')
+        # 没啥用，选择物体后会自动检测
+        # row = box.row()
+        # row.operator("object.check_current_uvmap", text="检测当前UV贴图", icon='VIEWZOOM')
 
         row = box.row()
         row.template_list("MESH_UL_uvmaps", "", context.object.data if context.object and context.object.type == 'MESH' else None,
                           "uv_layers", context.scene, "onemat_uv_index", rows=2)
         
-        row = box.row()
-        box.label(text="设置当前UV到所有选中物体：")
 
-        row = box.row()
-        row.prop(context.scene, "onemat_uv_index", text="目标UV序号")
+
+        # 没啥用，选择UV贴图后会自动定义序号
+        # row = box.row()
+        # row.prop(context.scene, "onemat_uv_index", text="目标UV序号")
 
         row = box.row(align=True)
         row.operator("one_mat.set_active_uv_for_selected", text="设为编辑UV")
@@ -103,10 +104,10 @@ class OneMat_PT_MaterialPanel(BasePanel, bpy.types.Panel):
         scene = context.scene
 
         box = layout.box()
-        box.label(text="新建图像设置")
+        box.label(text="添加烘焙用图像纹理节点")
 
         col = box.column(align=True)
-        col.prop(scene, "onemat_image_prefix", text="前缀")
+        # col.prop(scene, "onemat_image_prefix", text="前缀") # 前缀没啥用省略吧
         col.prop(scene, "onemat_image_name", text="名称")
         col.prop(scene, "onemat_image_suffix", text="后缀")
 
@@ -115,11 +116,10 @@ class OneMat_PT_MaterialPanel(BasePanel, bpy.types.Panel):
         row.prop(scene, "onemat_image_height", text="高度")
 
         col = box.column(align=True)
-        col.prop(scene, "onemat_image_color", text="颜色")
         col.prop(scene, "onemat_image_alpha", text="Alpha")
         
 
         row = box.row()
-        row.operator("one_mat.add_texture_to_materials", text="批量添加图像贴图", icon='TEXTURE')
+        row.operator("one_mat.add_texture_to_materials", text="批量添加图像纹理", icon='TEXTURE')
 
         

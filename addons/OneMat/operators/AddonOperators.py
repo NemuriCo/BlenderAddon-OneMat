@@ -151,17 +151,17 @@ class OneMat_OT_AddUVMapBatch(bpy.types.Operator):
         return {'FINISHED'}
 
 # 检测当前UV贴图操作部分
-class OneMat_OT_CheckCurrentUVMap(bpy.types.Operator):
-    bl_idname = "object.check_current_uvmap"
-    bl_label = "Check Current UVMap"
+# class OneMat_OT_CheckCurrentUVMap(bpy.types.Operator):
+#     bl_idname = "object.check_current_uvmap"
+#     bl_label = "Check Current UVMap"
 
-    def execute(self, context):
-        obj = context.active_object
-        if obj and obj.type == 'MESH':
-            active_uv = obj.data.uv_layers.active.name
-            self.report({'INFO'}, f"当前UV贴图：{active_uv}")
-            return {'FINISHED'}
-        return {'CANCELLED'}
+#     def execute(self, context):
+#         obj = context.active_object
+#         if obj and obj.type == 'MESH':
+#             active_uv = obj.data.uv_layers.active.name
+#             self.report({'INFO'}, f"当前UV贴图：{active_uv}")
+#             return {'FINISHED'}
+#         return {'CANCELLED'}
 
 #批量处理UV贴图操作部分
 
@@ -241,7 +241,8 @@ class OneMat_OT_AddTextureToMaterials(bpy.types.Operator):
         height = scene.onemat_image_height
         use_alpha = scene.onemat_image_alpha
 
-        image_name = f"{prefix}{name}{suffix}"
+        # 如果选择的是 Null，则不使用后缀
+        image_name = f"{prefix}{name}" if suffix == "Null" else f"{prefix}{name}{suffix}"
 
         # 如果图像不存在则创建
         if image_name not in bpy.data.images:

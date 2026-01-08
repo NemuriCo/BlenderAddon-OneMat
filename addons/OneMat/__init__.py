@@ -37,8 +37,19 @@ _addon_properties = {
         "onemat_image_name": bpy.props.StringProperty(
             name="图像名", default="OneMat"
         ),
-        "onemat_image_suffix": bpy.props.StringProperty(
-            name="后缀", default=""
+        "onemat_image_suffix": bpy.props.EnumProperty(
+            name="后缀",
+            items=[
+                ("_Color", "_Color", ""),
+                ("_Normal", "_Normal", ""),
+                ("_Emissive", "_Emissive", ""),
+                ("_Alpha", "_Alpha", ""),
+                ("_Metallic", "_Metallic", ""),
+                ("_Roughness", "_Roughness", ""),
+                ("_BaseColor", "_BaseColor", ""),
+                ("Null", "Null", "不添加后缀"),
+            ],
+            default="_Color"
         ),
         "onemat_image_width": bpy.props.IntProperty(
             name="宽度", default=1024, min=1
@@ -46,11 +57,8 @@ _addon_properties = {
         "onemat_image_height": bpy.props.IntProperty(
             name="高度", default=1024, min=1
         ),
-        "onemat_image_color": bpy.props.FloatVectorProperty(
-            name="颜色", subtype='COLOR', default=(0.8, 0.8, 0.8), size=3, min=0.0, max=1.0
-        ),
         "onemat_image_alpha": bpy.props.BoolProperty(
-            name="Alpha", default=False
+            name="Alpha", default=True
         ),
     }
 }
