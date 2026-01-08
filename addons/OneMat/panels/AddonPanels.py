@@ -16,8 +16,9 @@ class BasePanel(object):
         return True
 
 
-# Step01 模型处理面板
+################### Step01 模型处理面板
 @reg_order(0)
+######### 物体选择
 class OneMat_PT_MeshPanel(BasePanel, bpy.types.Panel):
     bl_label = "Step01 模型处理"
     bl_idname = "onemat_pt_mesh_panel"
@@ -39,8 +40,9 @@ class OneMat_PT_MeshPanel(BasePanel, bpy.types.Panel):
     def poll(cls, context: bpy.types.Context):
         return True
 
-# Step02 UV处理面板
+#################### Step02 UV处理面板
 @reg_order(1)
+
 class OneMat_PT_UVPanel(bpy.types.Panel):
     bl_label = "Step02 UV处理"
     bl_idname = "onemat_pt_uv_panel"
@@ -51,6 +53,7 @@ class OneMat_PT_UVPanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
 
+        ########## UV贴图统一
         box = layout.box()
         box.label(text="UV贴图统一")
 
@@ -60,6 +63,7 @@ class OneMat_PT_UVPanel(bpy.types.Panel):
         row = box.row()
         row.operator("object.remove_extra_uvmaps", text="删除多余UVMap")
 
+        ########## 创建UV贴图
         box = layout.box()
         box.label(text="创建UV贴图")
 
@@ -81,7 +85,6 @@ class OneMat_PT_UVPanel(bpy.types.Panel):
                           "uv_layers", context.scene, "onemat_uv_index", rows=2)
         
 
-
         # 没啥用，选择UV贴图后会自动定义序号
         # row = box.row()
         # row.prop(context.scene, "onemat_uv_index", text="目标UV序号")
@@ -93,7 +96,7 @@ class OneMat_PT_UVPanel(bpy.types.Panel):
         row = box.row()
         row.operator("object.remove_uvmap_by_index", text="删除指定序号UV贴图", icon='X')
 
-# Step03 材质处理面板
+#################### Step03 材质处理面板
 @reg_order(2)
 class OneMat_PT_MaterialPanel(BasePanel, bpy.types.Panel):
     bl_label = "Step03 材质处理"
@@ -103,6 +106,7 @@ class OneMat_PT_MaterialPanel(BasePanel, bpy.types.Panel):
         layout = self.layout
         scene = context.scene
 
+        ######### 添加图像纹理节点
         box = layout.box()
         box.label(text="添加烘焙用图像纹理节点")
 
@@ -122,7 +126,7 @@ class OneMat_PT_MaterialPanel(BasePanel, bpy.types.Panel):
         row = box.row()
         row.operator("one_mat.add_texture_to_materials", text="批量添加图像纹理", icon='TEXTURE')
 
-        # === 新增图像纹理节点的检测与管理 UI ===
+        #########图像纹理节点管理
         box = layout.box()
         box.label(text="图像纹理节点管理")
 
@@ -156,3 +160,4 @@ class OneMat_PT_MaterialPanel(BasePanel, bpy.types.Panel):
         row.operator("one_mat.set_image_node_active", text="激活图像纹理节点", icon='RESTRICT_VIEW_OFF')
         row.operator("one_mat.remove_selected_image_node", text="删除图像纹理节点", icon='X')
         
+#################### Step04 烘焙面板
