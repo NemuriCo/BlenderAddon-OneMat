@@ -102,7 +102,7 @@ class OneMat_OT_ToggleWire(bpy.types.Operator):
         return {'FINISHED'}
 
 # 命名第一套UV贴图操作部分
-class OBJECT_OT_RenameFirstUVMap(bpy.types.Operator):
+class OneMat_OT_RenameFirstUVMap(bpy.types.Operator):
     bl_idname = "object.rename_first_uvmap"
     bl_label = "Rename First UVMap"
 
@@ -117,7 +117,7 @@ class OBJECT_OT_RenameFirstUVMap(bpy.types.Operator):
 
 
 # 删除多余UV贴图操作部分
-class OBJECT_OT_RemoveExtraUVMAPS(bpy.types.Operator):
+class OneMat_OT_RemoveExtraUVMAPS(bpy.types.Operator):
     bl_idname = "object.remove_extra_uvmaps"
     bl_label = "Remove Extra UVMaps"
 
@@ -137,7 +137,7 @@ class OBJECT_OT_RemoveExtraUVMAPS(bpy.types.Operator):
 
 
 # 批量创建UV贴图操作部分
-class OBJECT_OT_AddUVMapBatch(bpy.types.Operator):
+class OneMat_OT_AddUVMapBatch(bpy.types.Operator):
     bl_idname = "object.add_uvmap_batch"
     bl_label = "Batch Add UVMaps"
 
@@ -149,7 +149,7 @@ class OBJECT_OT_AddUVMapBatch(bpy.types.Operator):
         return {'FINISHED'}
 
 # 检测当前UV贴图操作部分
-class OBJECT_OT_CheckCurrentUVMap(bpy.types.Operator):
+class OneMat_OT_CheckCurrentUVMap(bpy.types.Operator):
     bl_idname = "object.check_current_uvmap"
     bl_label = "Check Current UVMap"
 
@@ -161,10 +161,10 @@ class OBJECT_OT_CheckCurrentUVMap(bpy.types.Operator):
             return {'FINISHED'}
         return {'CANCELLED'}
 
-#批量激活部分
+#批量处理UV贴图操作部分
 
 # 设置所有选中物体的编辑激活UV
-class ONE_MAT_OT_SetActiveUVForSelected(bpy.types.Operator):
+class OneMat_OT_SetActiveUVForSelected(bpy.types.Operator):
     bl_idname = "one_mat.set_active_uv_for_selected"
     bl_label = "设置为编辑UV"
     bl_description = "将当前UV图层设置为所有选中物体的编辑UV"
@@ -181,7 +181,7 @@ class ONE_MAT_OT_SetActiveUVForSelected(bpy.types.Operator):
         return {'FINISHED'}
 
 # 设置所有选中物体的渲染激活UV
-class ONE_MAT_OT_SetRenderUVForSelected(bpy.types.Operator):
+class OneMat_OT_SetRenderUVForSelected(bpy.types.Operator):
     bl_idname = "one_mat.set_render_uv_for_selected"
     bl_label = "设置为渲染UV"
     bl_description = "将当前UV图层设置为所有选中物体的渲染UV"
@@ -202,7 +202,7 @@ class ONE_MAT_OT_SetRenderUVForSelected(bpy.types.Operator):
         return {'FINISHED'}
 
 # 删除指定序号的UV贴图
-class OBJECT_OT_RemoveUVMapByIndex(bpy.types.Operator):
+class OneMat_RemoveUVMapByIndex(bpy.types.Operator):
     bl_idname = "object.remove_uvmap_by_index"
     bl_label = "删除指定序号UV贴图"
 

@@ -16,11 +16,11 @@ class BasePanel(object):
         return True
 
 
-# 物体选择面板
+# 模型处理面板
 @reg_order(0)
-class OneMat_OT_SelectMesh(BasePanel, bpy.types.Panel):
+class OneMat_PT_MeshPanel(BasePanel, bpy.types.Panel):
     bl_label = "Step01 模型处理"
-    bl_idname = "SCENE_PT_sample"
+    bl_idname = "onemat_pt_mesh_panel"
 
 
     def draw(self, context):
@@ -40,9 +40,9 @@ class OneMat_OT_SelectMesh(BasePanel, bpy.types.Panel):
         return True
 
 # UV处理面板
-class ONEMAT_PT_UVPanel(bpy.types.Panel):
+class OneMat_PT_UVPanel(bpy.types.Panel):
     bl_label = "Step02 UV处理"
-    bl_idname = "ONEMAT_PT_uv_panel"
+    bl_idname = "onemat_pt_uv_panel"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "OneMat"
@@ -91,5 +91,5 @@ class ONEMAT_PT_UVPanel(bpy.types.Panel):
         row = box.row()
         row.operator("object.remove_uvmap_by_index", text="删除指定序号UV贴图", icon='X')
 
-
+# 材质处理面板
 
