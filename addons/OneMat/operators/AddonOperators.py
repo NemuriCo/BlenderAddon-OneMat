@@ -5,8 +5,10 @@ from ..preference.AddonPreferences import ExampleAddonPreferences
 
 
 # This Example Operator will scale up the selected object
+
+# 基础代码部分
 class OneMatOperator(bpy.types.Operator):
-    '''ExampleAddon'''
+    '''一个材质'''
     # 操作的唯一标识符，用于找到和调用操作
     bl_idname = "object.one_mat_operator"
     bl_label = "OneMatOperator"
@@ -30,3 +32,87 @@ class OneMatOperator(bpy.types.Operator):
         # context.active_object.scale *= addon_prefs.number
         context.active_object.location.x += addon_prefs.number
         return {'FINISHED'}
+    
+
+# 减选Mesh物体操作部分
+class OneMat_OT_SelectMesh(bpy.types.Operator):
+    '''在当前选择物体中减选Mesh物体'''
+    bl_idname = "object.one_mat_select_mesh"
+    bl_label = "减选Mesh物体"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def execute(self, context):
+        self.report({'INFO'}, "执行：减选Mesh物体")
+        return {'FINISHED'}
+
+
+# 线框模式切换操作部分
+class OneMat_OT_ToggleWire(bpy.types.Operator):
+    bl_idname = "object.one_mat_toggle_wire"
+    bl_label = "线框模式切换"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def execute(self, context):
+        self.report({'INFO'}, "执行：线框模式切换")
+        return {'FINISHED'}
+
+# 命名第一套UV贴图操作部分
+class OBJECT_OT_RenameFirstUVMap(bpy.types.Operator):
+    bl_idname = "object.rename_first_uvmap"
+    bl_label = "Rename First UVMap"
+
+    def execute(self, context):
+        obj = context.active_object
+        if obj and obj.type == 'MESH' and obj.data.uv_layers:
+            obj.data.uv_layers[0].name = "UVMap"
+            return {'FINISHED'}
+        return {'CANCELLED'}
+
+# 删除多余UV贴图操作部分
+class OBJECT_OT_RemoveExtraUVMAPS(bpy.types.Operator):
+    bl_idname = "object.remove_extra_uvmaps"
+    bl_label = "Remove Extra UVMaps"
+
+    def execute(self, context):
+        obj = context.active_object
+        if obj and obj.type == 'MESH':
+            uv_layers = obj.data.uv_layers
+            while len(uv_layers) > 1:
+                uv_layers.remove(uv_layers[-1])
+            return {'FINISHED'}
+        return {'CANCELLED'}
+
+# 批量创建UV贴图操作部分
+class OBJECT_OT_AddUVMapBatch(bpy.types.Operator):
+    bl_idname = "object.add_uvmap_batch"
+    bl_label = "Batch Add UVMaps"
+
+    def execute(self, context):
+        name = context.scene.onemat_uv_name
+        for obj in context.selected_objects:
+            if obj.type == 'MESH':
+                obj.data.uv_layers.new(name=name)
+        return {'FINISHED'}
+
+# 检测当前UV贴图操作部分
+class OBJECT_OT_CheckCurrentUVMap(bpy.types.Operator):
+    bl_idname = "object.check_current_uvmap"
+    bl_label = "Check Current UVMap"
+
+    def execute(self, context):
+        obj = context.active_object
+        if obj and obj.type == 'MESH':
+            active_uv = obj.data.uv_layers.active.name
+            self.report({'INFO'}, f"当前UV贴图：{active_uv}")
+            return {'FINISHED'}
+        return {'CANCELLED'}
+
+
