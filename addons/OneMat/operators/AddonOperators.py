@@ -192,8 +192,11 @@ class ONE_MAT_OT_SetRenderUVForSelected(bpy.types.Operator):
         for obj in context.selected_objects:
             if obj.type != 'MESH':
                 continue
-            if uv_index < len(obj.data.uv_layers):
-                obj.data.uv_layers.active_render_index = uv_index
+            uv_layers = obj.data.uv_layers
+            if uv_index < len(uv_layers):
+                # 遍历所有 UV 层，设置渲染 UV
+                for i, uv_layer in enumerate(uv_layers):
+                    uv_layer.active_render = (i == uv_index)
             else:
                 self.report({'WARNING'}, f"{obj.name} 没有第 {uv_index} 个UV")
         return {'FINISHED'}
