@@ -201,4 +201,25 @@ class ONE_MAT_OT_SetRenderUVForSelected(bpy.types.Operator):
                 self.report({'WARNING'}, f"{obj.name} 没有第 {uv_index} 个UV")
         return {'FINISHED'}
 
+# 删除指定序号的UV贴图
+class OBJECT_OT_RemoveUVMapByIndex(bpy.types.Operator):
+    bl_idname = "object.remove_uvmap_by_index"
+    bl_label = "删除指定序号UV贴图"
+
+    def execute(self, context):
+        uv_index = context.scene.onemat_uv_index
+        removed_count = 0
+
+        for obj in context.selected_objects:
+            if obj.type != 'MESH':
+                continue
+            uv_layers = obj.data.uv_layers
+            if uv_index < len(uv_layers):
+                uv_layers.remove(uv_layers[uv_index])
+                removed_count += 1
+            else:
+                self.report({'WARNING'}, f"{obj.name} 没有第 {uv_index} 个UV")
+
+        self.report({'INFO'}, f"已从 {removed_count} 个对象中删除第 {uv_index} 个 UV")
+        return {'FINISHED' if removed_count > 0 else 'CANCELLED'}
 

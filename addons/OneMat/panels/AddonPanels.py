@@ -19,7 +19,7 @@ class BasePanel(object):
 # 物体选择面板
 @reg_order(0)
 class OneMat_OT_SelectMesh(BasePanel, bpy.types.Panel):
-    bl_label = "OneMat"
+    bl_label = "Step01 模型处理"
     bl_idname = "SCENE_PT_sample"
 
 
@@ -41,7 +41,7 @@ class OneMat_OT_SelectMesh(BasePanel, bpy.types.Panel):
 
 # UV处理面板
 class ONEMAT_PT_UVPanel(bpy.types.Panel):
-    bl_label = "UV处理"
+    bl_label = "Step02 UV处理"
     bl_idname = "ONEMAT_PT_uv_panel"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
@@ -59,7 +59,7 @@ class ONEMAT_PT_UVPanel(bpy.types.Panel):
         row = box.row()
         row.operator("object.remove_extra_uvmaps", text="删除多余UVMap")
 
-        box.separator()
+        box = layout.box()
         box.label(text="创建UV贴图")
 
         row = box.row()
@@ -68,8 +68,8 @@ class ONEMAT_PT_UVPanel(bpy.types.Panel):
         row = box.row()
         row.operator("object.add_uvmap_batch", text="批量添加UV贴图")
 
-        box.separator()
-        box.label(text="选择UV贴图")
+        box = layout.box()
+        box.label(text="UV贴图处理")
 
         row = box.row()
         row.operator("object.check_current_uvmap", text="检测当前UV贴图", icon='VIEWZOOM')
@@ -78,10 +78,18 @@ class ONEMAT_PT_UVPanel(bpy.types.Panel):
         row.template_list("MESH_UL_uvmaps", "", context.object.data if context.object and context.object.type == 'MESH' else None,
                           "uv_layers", context.scene, "onemat_uv_index", rows=2)
         
-        layout.label(text="设置当前UV到所有选中物体：")
-        layout.prop(context.scene, "onemat_uv_index", text="目标UV序号")
-        row = layout.row(align=True)
+        row = box.row()
+        box.label(text="设置当前UV到所有选中物体：")
+
+        row = box.row()
+        row.prop(context.scene, "onemat_uv_index", text="目标UV序号")
+
+        row = box.row(align=True)
         row.operator("one_mat.set_active_uv_for_selected", text="设为编辑UV")
         row.operator("one_mat.set_render_uv_for_selected", text="设为渲染UV")
+
+        row = box.row()
+        row.operator("object.remove_uvmap_by_index", text="删除指定序号UV贴图", icon='X')
+
 
 
