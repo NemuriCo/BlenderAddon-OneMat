@@ -163,6 +163,23 @@ class OBJECT_OT_CheckCurrentUVMap(bpy.types.Operator):
 
 #批量激活部分
 
+# 设置所有选中物体的编辑激活UV
+class ONE_MAT_OT_SetActiveUVForSelected(bpy.types.Operator):
+    bl_idname = "one_mat.set_active_uv_for_selected"
+    bl_label = "设置为编辑UV"
+    bl_description = "将当前UV图层设置为所有选中物体的编辑UV"
+
+    def execute(self, context):
+        uv_index = context.scene.onemat_uv_index
+        for obj in context.selected_objects:
+            if obj.type != 'MESH':
+                continue
+            if uv_index < len(obj.data.uv_layers):
+                obj.data.uv_layers.active_index = uv_index
+            else:
+                self.report({'WARNING'}, f"{obj.name} 没有第 {uv_index} 个UV")
+        return {'FINISHED'}
+
 # 设置所有选中物体的渲染激活UV
 class ONE_MAT_OT_SetRenderUVForSelected(bpy.types.Operator):
     bl_idname = "one_mat.set_render_uv_for_selected"
@@ -171,46 +188,14 @@ class ONE_MAT_OT_SetRenderUVForSelected(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        uv_name = context.scene.onemat_uv_name
-
-        for obj in context.selected_objects:
-            if not obj or obj.type != 'MESH':
-                continue
-            o_data = obj.data
-            for i, uv in enumerate(o_data.uv_layers):
-                if uv.name == uv_name:
-                    o_data.uv_layers.active_render_index = i
-                    break
-
-        self.report({'INFO'}, f"已将 {uv_name} 设为渲染UV")
-        return {'FINISHED'}
-
-
-
-# 设置所有选中物体的编辑激活UV
-class ONE_MAT_OT_SetActiveUVForSelected(bpy.types.Operator):
-    bl_idname = "one_mat.set_active_uv_for_selected"
-    bl_label = "设置为编辑UV"
-    bl_description = "将当前UV图层设置为所有选中物体的编辑UV"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def execute(self, context):
-        uv_name = context.scene.onemat_uv_name  # 当前UI中选中的UV名称
-        
+        uv_index = context.scene.onemat_uv_index
         for obj in context.selected_objects:
             if obj.type != 'MESH':
                 continue
-            
-            uv_layers = obj.data.uv_layers
-            for i, uv in enumerate(uv_layers):
-                if uv.name == uv_name:
-                    obj.data.uv_layers.active_index = i
-                    break
+            if uv_index < len(obj.data.uv_layers):
+                obj.data.uv_layers.active_render_index = uv_index
             else:
-                self.report({'WARNING'}, f"{obj.name} 没有 UV 名称为 {uv_name}")
-        
-        self.report({'INFO'}, f"已将 {uv_name} 设为编辑UV")
+                self.report({'WARNING'}, f"{obj.name} 没有第 {uv_index} 个UV")
         return {'FINISHED'}
-
 
 

@@ -79,6 +79,7 @@ class ONEMAT_PT_UVPanel(bpy.types.Panel):
                           "uv_layers", context.scene, "onemat_uv_index", rows=2)
         
         layout.label(text="设置当前UV到所有选中物体：")
+        layout.prop(context.scene, "onemat_uv_index", text="目标UV序号")
         row = layout.row(align=True)
         row.operator("one_mat.set_active_uv_for_selected", text="设为编辑UV")
         row.operator("one_mat.set_render_uv_for_selected", text="设为渲染UV")
