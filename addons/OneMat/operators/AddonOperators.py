@@ -288,3 +288,27 @@ class OneMat_OT_AddTextureToMaterials(bpy.types.Operator):
 
         self.report({'INFO'}, f"已添加图像：{image_name}")
         return {'FINISHED'}
+    
+class ONEMAT_OT_DetectImageTextureNodes(bpy.types.Operator):
+    bl_idname = "one_mat.detect_image_texture_nodes"
+    bl_label = "检测图像纹理节点"
+
+    def execute(self, context):
+        # TODO: 实现节点检测逻辑
+        return {'FINISHED'}
+
+class ONEMAT_OT_SetImageNodeActive(bpy.types.Operator):
+    bl_idname = "one_mat.set_image_node_active"
+    bl_label = "激活所选图像纹理节点"
+
+    def execute(self, context):
+        # TODO: 实现激活逻辑
+        return {'FINISHED'}
+
+class ONEMAT_OT_RemoveSelectedImageNode(bpy.types.Operator):
+    bl_idname = "one_mat.remove_selected_image_node"
+    bl_label = "删除所选图像纹理节点"
+
+    def execute(self, context):
+        # TODO: 实现删除逻辑
+        return {'FINISHED'}

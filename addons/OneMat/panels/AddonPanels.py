@@ -16,7 +16,7 @@ class BasePanel(object):
         return True
 
 
-# 模型处理面板
+# Step01 模型处理面板
 @reg_order(0)
 class OneMat_PT_MeshPanel(BasePanel, bpy.types.Panel):
     bl_label = "Step01 模型处理"
@@ -39,7 +39,7 @@ class OneMat_PT_MeshPanel(BasePanel, bpy.types.Panel):
     def poll(cls, context: bpy.types.Context):
         return True
 
-# UV处理面板
+# Step02 UV处理面板
 @reg_order(1)
 class OneMat_PT_UVPanel(bpy.types.Panel):
     bl_label = "Step02 UV处理"
@@ -93,7 +93,7 @@ class OneMat_PT_UVPanel(bpy.types.Panel):
         row = box.row()
         row.operator("object.remove_uvmap_by_index", text="删除指定序号UV贴图", icon='X')
 
-# 材质处理面板
+# Step03 材质处理面板
 @reg_order(2)
 class OneMat_PT_MaterialPanel(BasePanel, bpy.types.Panel):
     bl_label = "Step03 材质处理"
@@ -122,4 +122,16 @@ class OneMat_PT_MaterialPanel(BasePanel, bpy.types.Panel):
         row = box.row()
         row.operator("one_mat.add_texture_to_materials", text="批量添加图像纹理", icon='TEXTURE')
 
+        # === 新增图像纹理节点的检测与管理 UI ===
+        box = layout.box()
+        box.label(text="图像纹理节点管理")
+
+        row = box.row(align=True)
+        row.operator("one_mat.detect_image_texture_nodes", text="检测当前图像纹理节点", icon='FILE_REFRESH')
+
+        box.template_list("ONEMAT_UL_ImageNodeList", "", scene, "onemat_image_nodes", scene, "onemat_image_nodes_index")
+
+        row = box.row(align=True)
+        row.operator("one_mat.set_image_node_active", text="激活图像纹理节点", icon='RESTRICT_VIEW_OFF')
+        row.operator("one_mat.remove_selected_image_node", text="删除图像纹理节点", icon='X')
         

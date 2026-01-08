@@ -9,11 +9,11 @@ from ...common.i18n.i18n import load_dictionary
 
 # Add-on info
 bl_info = {
-    "name": "Basic Add-on Sample",
-    "author": "[You name]",
-    "blender": (3, 5, 0),
+    "name": "OneMat",
+    "author": "沉睡钴&蓝",
+    "blender": (4, 5, 3),
     "version": (0, 0, 1),
-    "description": "This is a template for building addons",
+    "description": "Bake many of your materials into one texture!",
     "warning": "",
     "doc_url": "[documentation url]",
     "tracker_url": "[contact email]",
@@ -59,6 +59,11 @@ _addon_properties = {
         ),
         "onemat_image_alpha": bpy.props.BoolProperty(
             name="Alpha", default=True
+        ),
+        "onemat_image_nodes": bpy.props.CollectionProperty(
+            type=bpy.types.PropertyGroup
+        ),
+        "onemat_image_node_index": bpy.props.IntProperty(
         ),
     }
 }
