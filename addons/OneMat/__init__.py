@@ -79,17 +79,16 @@ _addon_properties = {
 
         ########## 烘焙
         "onemat_bake_type": bpy.props.EnumProperty(
-        name="烘焙类型",
-        items=[
-            ("BASE_COLOR", "Base Color", ""),
-            ("NORMAL", "Normal", ""),
-            ("METALLIC", "Metallic", ""),
-            ("ROUGHNESS", "Roughness", ""),
-            ("EMISSION", "Emission", ""),
-            ("ALPHA", "Alpha", ""),
-        ],
-        default="BASE_COLOR"
-        
+            name="烘焙类型",
+            items=[
+                ('COMBINED', "Combined", ""),
+                ('AO', "Ambient Occlusion", ""),
+                ('NORMAL', "Normal", ""),
+                ('DIFFUSE', "Diffuse", ""),
+                ('GLOSSY', "Glossy", ""),
+                ('TRANSMISSION', "Transmission", ""),
+            ],
+            default='DIFFUSE'
         ),
         "onemat_bake_margin": bpy.props.IntProperty(
             name="烘焙边距",
@@ -125,19 +124,7 @@ _addon_properties = {
             name="清除图像",
             default=True
         ),
-        "onemat_bake_save_image": bpy.props.BoolProperty(
-            name="保存图像",
-            default=False
-        ),
-        "onemat_bake_path": bpy.props.StringProperty(
-            name="保存路径",
-            subtype='DIR_PATH'
-        ),
-        "onemat_bake_filename": bpy.props.StringProperty(
-            name="保存文件名",
-            default="",
-            subtype='FILE_NAME'
-        ),
+
 
 
         

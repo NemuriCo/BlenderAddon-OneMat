@@ -183,8 +183,9 @@ class ONEMAT_PT_bake_panel(bpy.types.Panel):
         #####减选
         box.operator("onemat.remove_non_mesh_objects", text="减选非Mesh物体")
 
-        #####烘焙类型1
+        #####烘焙类型
         box.prop(props, "onemat_bake_type", text="烘焙类型")
+        
 
 
 
@@ -196,8 +197,7 @@ class ONEMAT_PT_bake_panel(bpy.types.Panel):
 
         ############## 烘焙按钮
         box.operator("onemat.bake_selected", icon='RENDER_STILL')
-        ############## 保存图像按钮
-        box.operator("onemat.save_active_image_popup", icon='FILE_TICK')
+        
 
 #################### Step05 贴图
 @reg_order(4)

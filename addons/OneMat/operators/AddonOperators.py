@@ -459,11 +459,12 @@ class ONEMAT_OT_bake_selected(bpy.types.Operator):
             return {'CANCELLED'}
 
         try:
-            bpy.ops.object.bake('INVOKE_DEFAULT')
+            bpy.ops.object.bake(type='DIFFUSE',)
             return {'FINISHED'}
         except Exception as e:
             self.report({'ERROR'}, f"烘焙失败: {e}")
             return {'CANCELLED'}
+            
         
 ##########保存图像
 last_saved_image_path = ""
