@@ -203,20 +203,21 @@ class ONEMAT_PT_bake_panel(bpy.types.Panel):
 @reg_order(4)
 class ONEMAT_PT_texture_panel(bpy.types.Panel):
     bl_label = "Setp05 贴图"
-    bl_idname = "ONEMAT_PT_texture_panel"
+    bl_idname = "onemat_pt_texture_panel"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "OneMat"
 
     def draw(self, context):
         layout = self.layout
-        scene = context.scene
 
         box = layout.box()
         box.label(text="贴图")
 
-        # 删除材质插槽按钮
-        box.operator("onemat.remove_material_slots", text="删除材质插槽", icon="X")
-        
+        row = box.row()
+        row.prop(context.scene, "onemat_material_name", text="材质名")
 
-        layout.prop(scene, "onemat_material_name", text="材质名")
+
+        # 删除材质插槽按钮
+        box.operator("onemat.remove_material_slots", text="删除所有材质插槽", icon="X")
+        

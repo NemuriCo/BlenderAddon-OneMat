@@ -526,18 +526,3 @@ class ONEMAT_OT_remove_material_slots(bpy.types.Operator):
         self.report({'INFO'}, "已删除材质插槽")
         return {'FINISHED'}
 
-
-# 创建材质并赋予
-class ONEMAT_OT_create_material(bpy.types.Operator):
-    bl_idname = "onemat.create_material"
-    bl_label = "创建材质"
-
-    def execute(self, context):
-        mat_name = context.scene.onemat_material_name
-        if mat_name in bpy.data.materials:
-            self.report({'WARNING'}, f"材质 '{mat_name}' 已存在")
-            return {'CANCELLED'}
-        mat = bpy.data.materials.new(name=mat_name)
-        mat.use_nodes = True
-        self.report({'INFO'}, f"创建材质: {mat.name}")
-        return {'FINISHED'}

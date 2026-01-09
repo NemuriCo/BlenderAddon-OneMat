@@ -24,17 +24,23 @@ bl_info = {
 
 _addon_properties = {
     bpy.types.Scene: {
-        ##########UV
+        ########## UV
         "onemat_uv_name": bpy.props.StringProperty(
             name="UV贴图名称",
             default="UVMap_OneMatBake"
         ),
+        ######## 贴图
+        "onemat_material_name": bpy.props.StringProperty(
+            name="材质名", 
+            default="OneMat"
+        ),
+
         "onemat_uv_index": bpy.props.IntProperty(
             name="UV Index",
             default=0
         ),
 
-        ##########图像
+        ########## 图像
         "onemat_image_prefix": bpy.props.StringProperty(
             name="前缀", default="T_"
         ),
@@ -64,14 +70,14 @@ _addon_properties = {
         "onemat_image_alpha": bpy.props.BoolProperty(
             name="Alpha", default=True
         ),
-        ########图像序号
+        ######## 图像序号
         "onemat_image_nodes": bpy.props.CollectionProperty(
             type=bpy.types.PropertyGroup
         ),
         "onemat_image_node_index": bpy.props.IntProperty(
         ),
 
-        ##########烘焙
+        ########## 烘焙
         "onemat_bake_type": bpy.props.EnumProperty(
 
         default="BASE_COLOR"
@@ -98,16 +104,12 @@ _addon_properties = {
             subtype='DIR_PATH'
         ),
         "onemat_bake_filename": bpy.props.StringProperty(
-        name="保存文件名",
-        default="",
-        subtype='FILE_NAME'
+            name="保存文件名",
+            default="",
+            subtype='FILE_NAME'
         ),
 
-        ########贴图
-        "onemat_material_name": bpy.props.StringProperty(
-        name="材质名", 
-        default="OneMat"
-        ),
+
         
     }
 }
