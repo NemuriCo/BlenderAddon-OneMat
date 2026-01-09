@@ -161,3 +161,24 @@ class OneMat_PT_MaterialPanel(BasePanel, bpy.types.Panel):
         row.operator("one_mat.remove_selected_image_node", text="删除图像纹理节点", icon='X')
         
 #################### Step04 烘焙面板
+@reg_order(3)
+class ONEMAT_PT_bake_panel(bpy.types.Panel):
+    bl_label = "Setp04 烘焙"
+    bl_idname = "ONEMAT_PT_bake_panel"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "OneMat"
+
+    def draw(self, context):
+        layout = self.layout
+        props = context.scene
+
+        box = layout.box()
+
+        box.operator("onemat.remove_non_mesh_objects", text="减选非Mesh物体")
+        box.prop(props, "onemat_bake_type", text="烘焙类型")
+
+        row = box.row(align=True)
+        row.operator("onemat.bake_metal_to_emission", text="金属度 ➜ 自发光")
+        row.operator("onemat.bake_emission_to_metal", text="自发光 ➜ 金属度")
+        box.operator("onemat.save_active_image", text="保存图像")

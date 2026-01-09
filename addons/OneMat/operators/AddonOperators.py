@@ -386,3 +386,72 @@ class ONEMAT_OT_RemoveSelectedImageNode(bpy.types.Operator):
 
         self.report({'INFO'}, f"已删除图像节点：{target_name}（{count} 个节点）")
         return {'FINISHED'}
+
+
+############Setp04 烘焙面板操作部分
+class ONEMAT_OT_remove_non_mesh_objects(bpy.types.Operator):
+    bl_idname = "onemat.remove_non_mesh_objects"
+    bl_label = "减选非Mesh物体"
+
+    def execute(self, context):
+        for obj in context.selected_objects:
+            if obj.type != 'MESH':
+                obj.select_set(False)
+        return {'FINISHED'}
+
+
+class ONEMAT_OT_bake_metal_to_emission(bpy.types.Operator):
+    bl_idname = "onemat.bake_metal_to_emission"
+    bl_label = "金属度 ➜ 自发光"
+
+    def execute(self, context):
+        for obj in context.selected_objects:
+            if obj.type != 'MESH':
+                continue
+            for slot in obj.material_slots:
+                mat = slot.material
+                if not mat or not mat.use_nodes:
+                    continue
+                for node in mat.node_tree.nodes:
+                    if isinstance(node, bpy.types.ShaderNodeBsdfPrincipled):
+                        for link in node.inputs['Metallic'].links:
+                            mat.node_tree.links.remove(link)
+                        node.inputs['Metallic'].default_value = 0.0
+                        node.inputs['Emission Strength'].default_value = 1.0
+        return {'FINISHED'}
+
+
+class ONEMAT_OT_bake_emission_to_metal(bpy.types.Operator):
+    bl_idname = "onemat.bake_emission_to_metal"
+    bl_label = "自发光 ➜ 金属度"
+
+    def execute(self, context):
+        for obj in context.selected_objects:
+            if obj.type != 'MESH':
+                continue
+            for slot in obj.material_slots:
+                mat = slot.material
+                if not mat or not mat.use_nodes:
+                    continue
+                for node in mat.node_tree.nodes:
+                    if isinstance(node, bpy.types.ShaderNodeBsdfPrincipled):
+                        for link in node.inputs['Emission'].links:
+                            mat.node_tree.links.remove(link)
+                        node.inputs['Emission'].default_value = (0, 0, 0, 1)
+                        node.inputs['Metallic'].default_value = 1.0
+        return {'FINISHED'}
+
+
+class ONEMAT_OT_save_active_image(bpy.types.Operator):
+    bl_idname = "onemat.save_active_image"
+    bl_label = "保存当前图像"
+
+    def execute(self, context):
+        area = next((a for a in context.screen.areas if a.type == 'IMAGE_EDITOR'), None)
+        if area:
+            for space in area.spaces:
+                if space.type == 'IMAGE_EDITOR' and space.image:
+                    space.image.save()
+                    self.report({'INFO'}, f"已保存图像：{space.image.name}")
+                    break
+        return {'FINISHED'}

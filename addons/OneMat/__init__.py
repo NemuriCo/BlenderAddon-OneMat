@@ -65,6 +65,39 @@ _addon_properties = {
         ),
         "onemat_image_node_index": bpy.props.IntProperty(
         ),
+        "onemat_bake_type": bpy.props.EnumProperty(
+        name="烘焙类型",
+        items=[
+            ("BASE_COLOR", "Base Color", ""),
+            ("NORMAL", "Normal", ""),
+            ("METALLIC", "Metallic", ""),
+            ("ROUGHNESS", "Roughness", ""),
+            ("EMISSION", "Emission", ""),
+            ("ALPHA", "Alpha", ""),
+        ],
+        default="BASE_COLOR"
+        ),
+        "onemat_bake_margin": bpy.props.IntProperty(
+            name="烘焙边距",
+            default=2,
+            min=0
+        ),
+        "onemat_bake_selected_to_active": bpy.props.BoolProperty(
+            name="仅选中 → 激活",
+            default=False
+        ),
+        "onemat_bake_use_clear": bpy.props.BoolProperty(
+            name="清除图像",
+            default=True
+        ),
+        "onemat_bake_save_image": bpy.props.BoolProperty(
+            name="保存图像",
+            default=False
+        ),
+        "onemat_bake_path": bpy.props.StringProperty(
+            name="保存路径",
+            subtype='DIR_PATH'
+        ),
     }
 }
 
