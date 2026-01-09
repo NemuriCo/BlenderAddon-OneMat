@@ -37,23 +37,25 @@ class OneMat_PT_GoPanel(BasePanel, bpy.types.Panel):
 
 
         # 添加按钮
-        box.label(text="1 确保模型面数已检查↓")
+        box.label(text="1 确保模型面数已检查进行合并↓")
         box.operator("object.one_mat_go_mesh", text="模型处理")
 
-        box.label(text="2 好像没啥↓")
+        box.label(text="2 处理UV贴图至烘焙所需状态↓")
         box.operator("object.one_mat_go_uv", text="UV处理")
 
         box.label(text="3 确保UV按组拼排,对齐3D空间↓")
         box.operator("object.one_mat_go_mat", text="材质处理")
 
-        box.label(text="4 好像没啥↓")
-        box.operator("object.one_mat_go_bake", text="烘焙")
+        box.label(text="4 开始烘焙！↓")
+        box.operator("object.one_mat_go_bake", text="烘焙图像")
 
-        box.label(text="5 好像没啥↓")
-        box.operator("object.one_mat_go_tex", text="贴图")
+        box.label(text="5 贴上看效果吧↓")
+        box.operator("object.one_mat_go_tex", text="赋予材质")
         
         box.label(text="6 保存一切！Save or Save！")
-        box.operator("object.one_mat_go_save", text="保存贴图")
+        box.prop(context.scene, "onemat_output_path", text="")
+        box.operator("onemat.save_all_images", icon="FILE_TICK", text="保存所有图像")
+
 
 
 
@@ -267,7 +269,24 @@ class ONEMAT_PT_texture_panel(bpy.types.Panel):
 
         box.operator("onemat.create_and_assign_material", icon="MATERIAL")
 
-        row = box.row()
-        box.operator("onemat.save_texture", text="保存所有贴图")
-
         
+#################### Step06 保存
+@reg_order(6)
+class OneMat_PT_Save_Panel(bpy.types.Panel):
+    bl_label = "Setp06 保存"
+    bl_idname = "onemat_pt_save_panel"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "OneMat"
+
+    def draw(self, context):
+        layout = self.layout
+
+        box = layout.box()
+        box.label(text="保存")
+
+
+        box.prop(context.scene, "onemat_output_path", text="")
+
+        row = box.row()
+        box.operator("onemat.save_all_images", icon="FILE_TICK", text="保存所有图像")

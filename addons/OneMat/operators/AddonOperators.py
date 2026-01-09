@@ -1007,6 +1007,58 @@ class ONEMAT_OT_create_and_assign_material(bpy.types.Operator):
                     obj.data.materials.append(mat)
 
         return {'FINISHED'}
+    
+    
+# 保存路径
+class ONEMAT_OT_save_all_images(bpy.types.Operator):
+    bl_idname = "onemat.save_all_images"
+    bl_label = "保存所有贴图"
+    bl_description = "将选中物体材质中的图像纹理保存到指定文件夹"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        import os
+
+        scene = context.scene
+        export_path = bpy.path.abspath(scene.onemat_output_path)
+
+        if not os.path.exists(export_path):
+            self.report({'ERROR'}, f"路径不存在: {export_path}")
+            return {'CANCELLED'}
+
+        saved_images = set()
+
+        for obj in context.selected_objects:
+            if obj.type != 'MESH':
+                continue
+
+            for slot in obj.material_slots:
+                mat = slot.material
+                if not mat or not mat.use_nodes:
+                    continue
+
+                for node in mat.node_tree.nodes:
+                    if node.type == 'TEX_IMAGE' and node.image:
+                        image = node.image
+                        if image.name in saved_images:
+                            continue
+                        if not image.has_data:
+                            self.report({'WARNING'}, f"图像无数据: {image.name}")
+                            continue
+
+                        file_path = os.path.join(export_path, f"{image.name}.png")
+                        try:
+                            image.filepath_raw = file_path
+                            image.file_format = 'PNG'
+                            image.save()
+                            saved_images.add(image.name)
+                        except Exception as e:
+                            self.report({'WARNING'}, f"保存失败 {image.name}: {str(e)}")
+
+        self.report({'INFO'}, f"保存完成，共 {len(saved_images)} 张图像")
+        return {'FINISHED'}
+
+
 
 # 保存贴图
 class OneMat_OT_Save_Texture(bpy.types.Operator):

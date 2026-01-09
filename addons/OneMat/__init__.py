@@ -110,14 +110,15 @@ _addon_properties = {
             name="清除图像",
             default=True
         ),
-        "onemat_bake_save_image": bpy.props.BoolProperty(
-            name="保存图像",
-            default=False
-        ),
-        "onemat_bake_path": bpy.props.StringProperty(
-            name="保存路径",
-            subtype='DIR_PATH'
-        ),
+        # "onemat_bake_save_image": bpy.props.BoolProperty(
+        #     name="保存图像",
+        #     default=False
+        # ),
+        # "onemat_bake_path": bpy.props.StringProperty(
+        #     name="保存路径",
+        #     subtype='DIR_PATH'
+        # ),
+        
         "onemat_bake_margin": bpy.props.IntProperty(
             name="烘焙边距",
             default=2,
@@ -132,6 +133,12 @@ _addon_properties = {
             default=True
         ),
 
+
+        "onemat_output_path": bpy.props.StringProperty(
+            name="保存文件夹",
+            subtype='DIR_PATH',
+            default=""
+        ),
 
 
         
