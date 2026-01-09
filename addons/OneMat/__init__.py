@@ -24,6 +24,13 @@ bl_info = {
 
 _addon_properties = {
     bpy.types.Scene: {
+
+        ######## 大统一命名
+        "onemat_go_name": bpy.props.StringProperty(
+            name="名称", 
+            default="OneMat"
+        ),
+
         ########## UV
         "onemat_uv_name": bpy.props.StringProperty(
             name="UV贴图名称",
@@ -92,7 +99,7 @@ _addon_properties = {
         ),
         "onemat_bake_margin": bpy.props.IntProperty(
             name="烘焙边距",
-            default=2,
+            default=2,  
             min=0
         ),
         "onemat_bake_selected_to_active": bpy.props.BoolProperty(

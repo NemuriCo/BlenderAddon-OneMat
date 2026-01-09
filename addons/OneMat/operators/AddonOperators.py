@@ -33,6 +33,112 @@ class OneMatOperator(bpy.types.Operator):
         context.active_object.location.x += addon_prefs.number
         return {'FINISHED'}
     
+# OneMat Go面板操作部分
+class OneMat_OT_OneMatGo(bpy.types.Operator): 
+    bl_idname = "object.one_mat_go"
+    bl_label = "一键处理"  # 可选
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        # 获取选中的对象
+        selected_objects = [obj for obj in context.selected_objects if obj.type == 'MESH']
+
+        if not selected_objects:
+            self.report({'WARNING'}, "未选中任何网格对象")
+            return {'CANCELLED'}
+
+        for obj in selected_objects:
+            # 使其独立化：物体 & 数据
+            bpy.ops.object.make_single_user(type='SELECTED_OBJECTS', object=True, obdata=True)
+
+            for obj in bpy.context.selected_objects:
+                try:
+                    bpy.ops.object.convert(target='MESH')
+                except:
+                    print(f"无法转换: {obj.name}")
+
+
+            # 应用所有修改器
+            for mod in obj.modifiers:
+                    bpy.ops.object.modifier_apply(modifier=mod.name)
+
+            # 应用缩放
+            bpy.ops.object.transform_apply(scale=True)
+
+            # 统一UV贴图命名
+            bpy.ops.object.rename_first_uvmap()
+
+            # 删除多余UV贴图
+            bpy.ops.object.remove_extra_uvmaps()
+
+            # 批量添加UV贴图
+            name = context.scene.onemat_go_name
+            for obj in context.selected_objects:
+                if obj.type == 'MESH':
+                    obj.data.uv_layers.new(name=name)
+
+
+            # 将第2套UV贴图设置为编辑
+            uv_index = 1
+            for obj in context.selected_objects:
+                if obj.type != 'MESH':
+                    continue
+                if uv_index < len(obj.data.uv_layers):
+                    obj.data.uv_layers.active_index = uv_index
+                else:
+                    self.report({'WARNING'}, f"{obj.name} 没有第2个UV")
+
+            # 将第1套UV贴图设置为渲染
+            uv_index = 0
+            for obj in context.selected_objects:
+                if obj.type != 'MESH':
+                    continue
+                uv_layers = obj.data.uv_layers
+                if uv_index < len(uv_layers):
+                    # 遍历所有 UV 层，设置渲染 UV
+                    for i, uv_layer in enumerate(uv_layers):
+                        uv_layer.active_render = (i == uv_index)
+                else:
+                    self.report({'WARNING'}, f"{obj.name} 没有第1个UV")
+
+
+            # 智能展开UV
+            # 转入 Edit 模式（如果当前在 Object 模式）
+            if bpy.context.object.mode != 'EDIT':
+                bpy.ops.object.mode_set(mode='EDIT')
+
+            # 选中所有面（可选）
+            bpy.ops.mesh.select_all(action='SELECT')
+
+            # 执行 Smart UV Project
+            bpy.ops.uv.smart_project(
+                angle_limit=1.155,  
+                island_margin=0.03,
+                area_weight=0.0,
+                correct_aspect=True,
+                scale_to_bounds=False
+            )
+
+            # 打包UV
+            bpy.ops.uvpackmaster3.pack()
+
+            # 批量添加图像纹理
+
+            # 减选非Mesh物体
+
+            # 烘焙
+
+            # 删除所有材质插槽
+
+            # 新建材质赋予
+
+
+
+
+
+
+        return {'FINISHED'}
+
 # Step01 模型处理面板操作部分
 # 减选Mesh物体操作部分
 class OneMat_OT_SelectMesh(bpy.types.Operator):
@@ -227,6 +333,30 @@ class OneMat_RemoveUVMapByIndex(bpy.types.Operator):
 
 
 # Step03 材质处理面板操作部分
+class ONEMAT_OT_SelectNoMaterialObjects(bpy.types.Operator):
+    bl_idname = "onemat.select_no_material_objects"
+    bl_label = "仅选中无材质物体"
+    bl_description = "检查选中物体，保留类型为Mesh且无材质的对象"
+
+    @classmethod
+    def poll(cls, context):
+        return context.selected_objects is not None
+
+    def execute(self, context):
+        selected_objs = context.selected_objects
+        objs_with_no_mat = [
+            obj for obj in selected_objs
+            if obj.type == 'MESH' and not obj.material_slots
+        ]
+
+        bpy.ops.object.select_all(action='DESELECT')
+
+        for obj in objs_with_no_mat:
+            obj.select_set(True)
+
+        self.report({'INFO'}, f"找到 {len(objs_with_no_mat)} 个无材质网格物体")
+        return {'FINISHED'}
+    
 class OneMat_OT_AddTextureToMaterials(bpy.types.Operator):
     bl_idname = "one_mat.add_texture_to_materials"
     bl_label = "添加图像纹理"
@@ -459,7 +589,7 @@ class ONEMAT_OT_bake_selected(bpy.types.Operator):
             return {'CANCELLED'}
 
         try:
-            bpy.ops.object.bake(type='DIFFUSE',)
+            bpy.ops.object.bake('INVOKE_DEFAULT',type='DIFFUSE',)
             return {'FINISHED'}
         except Exception as e:
             self.report({'ERROR'}, f"烘焙失败: {e}")
