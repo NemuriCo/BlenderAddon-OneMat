@@ -290,3 +290,6 @@ class OneMat_PT_Save_Panel(bpy.types.Panel):
 
         row = box.row()
         box.operator("onemat.save_all_images", icon="FILE_TICK", text="保存所有图像")
+
+        row = box.row()
+        box.operator("onemat.uvpack", icon="FILE_TICK", text="1")

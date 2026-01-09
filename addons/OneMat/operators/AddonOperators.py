@@ -1,4 +1,7 @@
 import bpy
+import bmesh
+
+import bl_ext.user_default.uvpackmaster3 as uvpm3
 
 from ..config import __addon_name__
 from ..preference.AddonPreferences import ExampleAddonPreferences
@@ -114,7 +117,6 @@ class OneMat_OT_OneMatGoUV(bpy.types.Operator):
 
 
 
-            # 智能展开UV
             # 转入 Edit 模式（如果当前在 Object 模式）
             if bpy.context.object.mode != 'EDIT':
                 bpy.ops.object.mode_set(mode='EDIT')
@@ -131,10 +133,11 @@ class OneMat_OT_OneMatGoUV(bpy.types.Operator):
                 scale_to_bounds=False
             )
 
-            # 打包UV
-
             # 回到物体模式
             bpy.ops.object.mode_set(mode='OBJECT')
+
+            # 打包UV
+            bpy.ops.onemat.uvpack() 
 
             self.report({'INFO'}, "操作完成！请点击 Bake 继续")
 
@@ -1068,3 +1071,64 @@ class OneMat_OT_Save_Texture(bpy.types.Operator):
     def execute(self, context):
 
             return {'CANCELLED'}
+    
+
+class OneMat_OT_UVPack(bpy.types.Operator):
+    bl_idname = "onemat.uvpack"
+    bl_label = "保存所有贴图"
+
+    def execute(self, context):
+
+        # Make the object active
+        obj_to_pack = bpy.context.view_layer.objects.active
+
+        bpy.ops.object.editmode_toggle()
+
+        # Select all UVs
+        bm = bmesh.from_edit_mesh(obj_to_pack.data)
+        uv_layer = bm.loops.layers.uv.verify()
+
+        for face in bm.faces:
+            for loop in face.loops:
+                loop_uv = loop[uv_layer]
+                loop_uv.select = True
+
+
+        # === PACKING OPERATION BEGIN ===
+        # Reset all UVPM parameters to defaults
+        bpy.ops.uvpackmaster3.reset_to_defaults()
+
+        # Set values for all required UVPM parameters directly in the script.
+        uvpm3_prefs = uvpm3.utils.get_prefs()
+        uvpm3_props = uvpm3.utils.get_main_props(bpy.context)
+
+        # To get the python path for the given parameter, open Blender normally (with GUI),
+        # right mouse click over the parameter in the packer UI, then select 'Copy Data Path'
+        # from the menu. The path will be copied to clipboard. 
+        uvpm3_props.precision = 500
+
+        # Select packing mode id - uncomment only one line below
+        mode_id = "pack.single_tile"
+        # mode_id = "pack.tiles"
+        # mode_id = "pack.groups_to_tiles"
+        # mode_id = "pack.groups_together"
+
+        # If you want to use the packing mode currently selected in the blend file (e.g. after loading a UVPM preset), uncomment the following line
+        # mode_id = uvpm3_props.active_main_mode_id
+
+        pack_op_type = uvpm3.enums.PackOpType.PACK.code
+        # pack_op_type = uvpm3.enums.PackOpType.PACK_TO_OTHERS.code
+        # pack_op_type = uvpm3.enums.PackOpType.REPACK_WITH_OTHERS.code
+
+        try:
+            bpy.ops.uvpackmaster3.pack(mode_id=mode_id, pack_op_type=pack_op_type)
+        except Exception as ex:
+            print('Pack operation failed: ' + str(ex))
+
+        if uvpm3_prefs.engine_retcode != 0:
+            raise RuntimeError('UVPM 3 operation not succeeded (a warning or error occurred)! Return code: {}'.format(int(uvpm3_prefs.engine_retcode)))
+
+        # === PACKING OPERATION END ===
+
+        bpy.ops.object.editmode_toggle()
+        return {'CANCELLED'}
