@@ -399,47 +399,47 @@ class ONEMAT_OT_remove_non_mesh_objects(bpy.types.Operator):
                 obj.select_set(False)
         return {'FINISHED'}
 
+##################### 自发光金属度先不写
+# class ONEMAT_OT_bake_metal_to_emission(bpy.types.Operator):
+#     bl_idname = "onemat.bake_metal_to_emission"
+#     bl_label = "金属度 ➜ 自发光"
 
-class ONEMAT_OT_bake_metal_to_emission(bpy.types.Operator):
-    bl_idname = "onemat.bake_metal_to_emission"
-    bl_label = "金属度 ➜ 自发光"
-
-    def execute(self, context):
-        for obj in context.selected_objects:
-            if obj.type != 'MESH':
-                continue
-            for slot in obj.material_slots:
-                mat = slot.material
-                if not mat or not mat.use_nodes:
-                    continue
-                for node in mat.node_tree.nodes:
-                    if isinstance(node, bpy.types.ShaderNodeBsdfPrincipled):
-                        for link in node.inputs['Metallic'].links:
-                            mat.node_tree.links.remove(link)
-                        node.inputs['Metallic'].default_value = 0.0
-                        node.inputs['Emission Strength'].default_value = 1.0
-        return {'FINISHED'}
+#     def execute(self, context):
+#         for obj in context.selected_objects:
+#             if obj.type != 'MESH':
+#                 continue
+#             for slot in obj.material_slots:
+#                 mat = slot.material
+#                 if not mat or not mat.use_nodes:
+#                     continue
+#                 for node in mat.node_tree.nodes:
+#                     if isinstance(node, bpy.types.ShaderNodeBsdfPrincipled):
+#                         for link in node.inputs['Metallic'].links:
+#                             mat.node_tree.links.remove(link)
+#                         node.inputs['Metallic'].default_value = 0.0
+#                         node.inputs['Emission Strength'].default_value = 1.0
+#         return {'FINISHED'}
 
 
-class ONEMAT_OT_bake_emission_to_metal(bpy.types.Operator):
-    bl_idname = "onemat.bake_emission_to_metal"
-    bl_label = "自发光 ➜ 金属度"
+# class ONEMAT_OT_bake_emission_to_metal(bpy.types.Operator):
+#     bl_idname = "onemat.bake_emission_to_metal"
+#     bl_label = "自发光 ➜ 金属度"
 
-    def execute(self, context):
-        for obj in context.selected_objects:
-            if obj.type != 'MESH':
-                continue
-            for slot in obj.material_slots:
-                mat = slot.material
-                if not mat or not mat.use_nodes:
-                    continue
-                for node in mat.node_tree.nodes:
-                    if isinstance(node, bpy.types.ShaderNodeBsdfPrincipled):
-                        for link in node.inputs['Emission'].links:
-                            mat.node_tree.links.remove(link)
-                        node.inputs['Emission'].default_value = (0, 0, 0, 1)
-                        node.inputs['Metallic'].default_value = 1.0
-        return {'FINISHED'}
+#     def execute(self, context):
+#         for obj in context.selected_objects:
+#             if obj.type != 'MESH':
+#                 continue
+#             for slot in obj.material_slots:
+#                 mat = slot.material
+#                 if not mat or not mat.use_nodes:
+#                     continue
+#                 for node in mat.node_tree.nodes:
+#                     if isinstance(node, bpy.types.ShaderNodeBsdfPrincipled):
+#                         for link in node.inputs['Emission'].links:
+#                             mat.node_tree.links.remove(link)
+#                         node.inputs['Emission'].default_value = (0, 0, 0, 1)
+#                         node.inputs['Metallic'].default_value = 1.0
+#         return {'FINISHED'}
 
 ##########保存图像
 last_saved_image_path = ""
@@ -491,3 +491,23 @@ class ONEMAT_OT_save_active_image_popup(bpy.types.Operator):
 
         self.report({'ERROR'}, "未找到活动图像")
         return {'CANCELLED'}
+    
+
+##########烘焙
+class ONEMAT_OT_bake_selected(bpy.types.Operator):
+    bl_idname = "onemat.bake_selected"
+    bl_label = "烘焙当前图像"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        obj = context.active_object
+        if not obj or obj.type != 'MESH':
+            self.report({'ERROR'}, "请选择一个网格物体")
+            return {'CANCELLED'}
+
+        try:
+            bpy.ops.object.bake('INVOKE_DEFAULT')
+            return {'FINISHED'}
+        except Exception as e:
+            self.report({'ERROR'}, f"烘焙失败: {e}")
+            return {'CANCELLED'}

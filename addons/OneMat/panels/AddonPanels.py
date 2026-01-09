@@ -180,7 +180,10 @@ class ONEMAT_PT_bake_panel(bpy.types.Panel):
         box.operator("onemat.remove_non_mesh_objects", text="减选非Mesh物体")
         box.prop(props, "onemat_bake_type", text="烘焙类型")
 
-        row = box.row(align=True)
-        row.operator("onemat.bake_metal_to_emission", text="金属度 ➜ 自发光")
-        row.operator("onemat.bake_emission_to_metal", text="自发光 ➜ 金属度")
+        ##################### 自发光金属度先不写
+        # row = box.row(align=True)
+        # row.operator("onemat.bake_metal_to_emission", text="金属度 ➜ 自发光")
+        # row.operator("onemat.bake_emission_to_metal", text="自发光 ➜ 金属度")
+        box.operator("onemat.bake_selected", icon='RENDER_STILL')
+
         box.operator("onemat.save_active_image_popup", icon='FILE_TICK')

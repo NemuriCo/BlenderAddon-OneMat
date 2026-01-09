@@ -99,6 +99,12 @@ _addon_properties = {
             name="保存路径",
             subtype='DIR_PATH'
         ),
+        "onemat_bake_filename": bpy.props.StringProperty(
+        name="保存文件名",
+        default="",
+        subtype='FILE_NAME'
+        ),
+        
     }
 }
 
@@ -124,6 +130,7 @@ def register():
     bpy.app.translations.register(__addon_name__, common_dictionary)
 
     print("{} addon is installed.".format(__addon_name__))
+    
 
 
 def unregister():
