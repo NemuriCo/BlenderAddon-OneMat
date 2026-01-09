@@ -53,10 +53,10 @@ class OneMat_PT_MeshPanel(BasePanel, bpy.types.Panel):
 
         # 创建一个带边框的 Box 区域
         box = layout.box()
-        box.label(text="物体选择")
+        box.label(text="模型检查")
 
         # 添加两个按钮
-        box.operator("object.one_mat_select_mesh", text="减选Mesh物体")
+        box.operator("object.one_mat_select_mesh", text="选中非Mesh物体")
         box.operator("object.one_mat_toggle_wire", text="线框模式切换")
 
 

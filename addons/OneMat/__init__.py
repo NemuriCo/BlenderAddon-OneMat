@@ -34,7 +34,7 @@ _addon_properties = {
         ########## UV
         "onemat_uv_name": bpy.props.StringProperty(
             name="UV贴图名称",
-            default="UVMap_OneMatBake"
+            default="OneMat"
         ),
         ######## 贴图
         "onemat_material_name": bpy.props.StringProperty(
@@ -69,10 +69,10 @@ _addon_properties = {
             default="_Color"
         ),
         "onemat_image_width": bpy.props.IntProperty(
-            name="宽度", default=1024, min=1
+            name="宽度", default=2048, min=1
         ),
         "onemat_image_height": bpy.props.IntProperty(
-            name="高度", default=1024, min=1
+            name="高度", default=2048, min=1
         ),
         "onemat_image_alpha": bpy.props.BoolProperty(
             name="Alpha", default=True

@@ -36,6 +36,7 @@ class OneMatOperator(bpy.types.Operator):
 ############# OneMat Go面板操作部分
 #####模型处理
 class OneMat_OT_OneMatGoMesh(bpy.types.Operator): 
+    '''一键独立化数据，转网格，应用修改器，应用缩放'''
     bl_idname = "object.one_mat_go_mesh"
     bl_label = "一键处理"  
     bl_options = {'REGISTER', 'UNDO'}
@@ -69,6 +70,7 @@ class OneMat_OT_OneMatGoMesh(bpy.types.Operator):
         
 #####UV处理
 class OneMat_OT_OneMatGoUV(bpy.types.Operator): 
+    '''一键将UV贴图设置为烘焙用状态并智能展开UV'''
     bl_idname = "object.one_mat_go_uv"
     bl_label = "一键处理"  
     bl_options = {'REGISTER', 'UNDO'}
@@ -139,6 +141,7 @@ class OneMat_OT_OneMatGoUV(bpy.types.Operator):
     
 #####材质处理
 class OneMat_OT_OneMatGoMat(bpy.types.Operator): 
+    '''一键为材质添加图像纹理节点'''
     bl_idname = "object.one_mat_go_mat"
     bl_label = "一键处理"  
     bl_options = {'REGISTER', 'UNDO'}
@@ -204,6 +207,7 @@ class OneMat_OT_OneMatGoMat(bpy.types.Operator):
     
 #####烘焙
 class OneMat_OT_OneMatGoBake(bpy.types.Operator): 
+    '''一键烘焙选中物体'''
     bl_idname = "object.one_mat_go_bake"
     bl_label = "一键处理"  
     bl_options = {'REGISTER', 'UNDO'}
@@ -215,8 +219,10 @@ class OneMat_OT_OneMatGoBake(bpy.types.Operator):
             # 烘焙
             bpy.ops.onemat.bake_selected()
             return {'FINISHED'}
+    
 #####贴图
 class OneMat_OT_OneMatGoTex(bpy.types.Operator): 
+    '''一键为选中烘焙好的贴图创建材质赋予物体'''
     bl_idname = "object.one_mat_go_tex"
     bl_label = "一键处理"  
     bl_options = {'REGISTER', 'UNDO'}
