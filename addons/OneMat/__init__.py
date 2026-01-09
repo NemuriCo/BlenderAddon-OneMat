@@ -135,6 +135,7 @@ def register():
 
     print("{} addon is installed.".format(__addon_name__))
     
+    
 
 
 def unregister():

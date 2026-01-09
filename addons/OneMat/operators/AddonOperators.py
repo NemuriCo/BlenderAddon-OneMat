@@ -534,17 +534,11 @@ class ONEMAT_OT_create_material(bpy.types.Operator):
     bl_label = "创建材质"
 
     def execute(self, context):
-        # 读取材质名
         mat_name = context.scene.onemat_material_name
-
-        # 检查是否已有材质
         if mat_name in bpy.data.materials:
             self.report({'WARNING'}, f"材质 '{mat_name}' 已存在")
             return {'CANCELLED'}
-
-        # 创建材质
         mat = bpy.data.materials.new(name=mat_name)
         mat.use_nodes = True
-
         self.report({'INFO'}, f"创建材质: {mat.name}")
         return {'FINISHED'}

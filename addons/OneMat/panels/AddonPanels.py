@@ -215,11 +215,8 @@ class ONEMAT_PT_texture_panel(bpy.types.Panel):
         box = layout.box()
         box.label(text="贴图")
 
-        # 输入框：材质名
-        box.prop(context.scene, "onemat_material_name", text="材质名")
-
         # 删除材质插槽按钮
         box.operator("onemat.remove_material_slots", text="删除材质插槽", icon="X")
+        
 
-        # 创建材质按钮
-        box.operator("onemat.create_and_assign_material", text="创建材质并赋予", icon="MATERIAL")
+        layout.prop(scene, "onemat_material_name", text="材质名")
