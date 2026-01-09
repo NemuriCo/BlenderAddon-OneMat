@@ -526,3 +526,86 @@ class ONEMAT_OT_remove_material_slots(bpy.types.Operator):
         self.report({'INFO'}, "已删除材质插槽")
         return {'FINISHED'}
 
+class ONEMAT_OT_create_and_assign_material(bpy.types.Operator):
+    bl_idname = "onemat.create_and_assign_material"
+    bl_label = "创建材质并赋予"
+    bl_description = "使用输入的名称创建材质，并绑定到选中物体，同时添加匹配图像贴图"
+
+    def execute(self, context):
+        name_input = context.scene.onemat_material_name.strip()
+        if not name_input:
+            self.report({'WARNING'}, "材质名为空")
+            return {'CANCELLED'}
+
+        mat_name = f"M_{name_input}"
+
+        # 若材质已存在则复用，否则创建
+        if mat_name in bpy.data.materials:
+            mat = bpy.data.materials[mat_name]
+            self.report({'INFO'}, f"材质 '{mat_name}' 已存在，使用已有材质")
+        else:
+            mat = bpy.data.materials.new(name=mat_name)
+            mat.use_nodes = True
+            self.report({'INFO'}, f"已创建材质: {mat_name}")
+
+        # 图像名匹配逻辑（忽略前后缀）
+        matched_image = None
+
+        for img in bpy.data.images:
+            base = img.name.split('.')[0]  # 去除扩展名
+
+            # 去前缀
+            if base.startswith("T_"):
+                base = base.replace("T_", "", 1)
+
+            # 去后缀（一个个判断）
+            if base.endswith("_Color"):
+                base = base[:-len("_Color")]
+            elif base.endswith("_Normal"):
+                base = base[:-len("_Normal")]
+            elif base.endswith("_Emissive"):
+                base = base[:-len("_Emissive")]
+            elif base.endswith("_Alpha"):
+                base = base[:-len("_Alpha")]
+            elif base.endswith("_Metallic"):
+                base = base[:-len("_Metallic")]
+            elif base.endswith("_Roughness"):
+                base = base[:-len("_Roughness")]
+            elif base.endswith("_BaseColor"):
+                base = base[:-len("_BaseColor")]
+
+            if base == name_input:
+                matched_image = img
+                break
+
+        # 如果图像匹配成功，添加到材质节点
+        if matched_image:
+            nodes = mat.node_tree.nodes
+            links = mat.node_tree.links
+            nodes.clear()
+
+            # 添加所需节点
+            output = nodes.new(type='ShaderNodeOutputMaterial')
+            output.location = (400, 0)
+
+            bsdf = nodes.new(type='ShaderNodeBsdfPrincipled')
+            bsdf.location = (0, 0)
+
+            tex = nodes.new(type='ShaderNodeTexImage')
+            tex.image = matched_image
+            tex.label = "Auto-Loaded"
+            tex.location = (-300, 0)
+
+            # 连线
+            links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+            links.new(bsdf.outputs["BSDF"], output.inputs["Surface"])
+
+        # 赋予所有选中物体
+        for obj in context.selected_objects:
+            if obj.type == 'MESH':
+                if obj.data.materials:
+                    obj.data.materials[0] = mat
+                else:
+                    obj.data.materials.append(mat)
+
+        return {'FINISHED'}

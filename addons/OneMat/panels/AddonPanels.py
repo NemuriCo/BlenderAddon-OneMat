@@ -214,10 +214,12 @@ class ONEMAT_PT_texture_panel(bpy.types.Panel):
         box = layout.box()
         box.label(text="贴图")
 
+        # 删除材质插槽按钮
+        box.operator("onemat.remove_material_slots", text="删除所有材质插槽", icon="X")
+        
         row = box.row()
         row.prop(context.scene, "onemat_material_name", text="材质名")
 
+        box.operator("onemat.create_and_assign_material", icon="MATERIAL")
 
-        # 删除材质插槽按钮
-        box.operator("onemat.remove_material_slots", text="删除所有材质插槽", icon="X")
         
