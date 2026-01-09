@@ -115,8 +115,10 @@ class OneMat_PT_MaterialPanel(BasePanel, bpy.types.Panel):
         col.prop(scene, "onemat_image_name", text="名称")
         col.prop(scene, "onemat_image_suffix", text="后缀")
 
-        row = box.row(align=True)
+        row = box.row()
         row.prop(scene, "onemat_image_width", text="宽度")
+        
+        row = box.row()
         row.prop(scene, "onemat_image_height", text="高度")
 
         col = box.column(align=True)

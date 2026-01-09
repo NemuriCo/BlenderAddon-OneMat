@@ -25,7 +25,7 @@ _addon_properties = {
     bpy.types.Scene: {
         "onemat_uv_name": bpy.props.StringProperty(
             name="UV贴图名称",
-            default="UVMap"
+            default="UVMap_OneMatBake"
         ),
         "onemat_uv_index": bpy.props.IntProperty(
             name="UV Index",
