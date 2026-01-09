@@ -28,24 +28,32 @@ class OneMat_PT_GoPanel(BasePanel, bpy.types.Panel):
         box = layout.box()
         box.label(text="一键开冲！")
 
+        # 材质名
         row = box.row()
         row.prop(context.scene, "onemat_go_name", text="名称")
 
+        # 要烘焙的贴图
+
+
+
         # 添加按钮
-        box.label(text="Step01 确保模型面数已检查↓")
+        box.label(text="1 确保模型面数已检查↓")
         box.operator("object.one_mat_go_mesh", text="模型处理")
 
-        box.label(text="Step02 好像没啥↓")
+        box.label(text="2 好像没啥↓")
         box.operator("object.one_mat_go_uv", text="UV处理")
 
-        box.label(text="Step03 确保UV按组拼排,对齐3D空间↓")
+        box.label(text="3 确保UV按组拼排,对齐3D空间↓")
         box.operator("object.one_mat_go_mat", text="材质处理")
 
-        box.label(text="Step04 好像没啥↓")
+        box.label(text="4 好像没啥↓")
         box.operator("object.one_mat_go_bake", text="烘焙")
 
-        box.label(text="Step05 好像没啥↓")
+        box.label(text="5 好像没啥↓")
         box.operator("object.one_mat_go_tex", text="贴图")
+        
+        box.label(text="6 保存一切！Save or Save！")
+        box.operator("object.one_mat_go_save", text="保存贴图")
 
 
 

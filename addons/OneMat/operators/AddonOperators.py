@@ -365,7 +365,16 @@ class OneMat_OT_OneMatGoTex(bpy.types.Operator):
 
             return {'FINISHED'}
 
+#####保存
+class OneMat_OT_OneMatGoSave(bpy.types.Operator): 
+    '''一键保存'''
+    bl_idname = "object.one_mat_go_save"
+    bl_label = "一键处理"  
+    bl_options = {'REGISTER', 'UNDO'}
 
+    def execute(self, context):
+
+            return {'FINISHED'}
 
 
 
