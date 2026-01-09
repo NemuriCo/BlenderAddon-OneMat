@@ -134,8 +134,10 @@ class OneMat_OT_OneMatGoUV(bpy.types.Operator):
             # 打包UV
 
             # 回到物体模式
-
             bpy.ops.object.mode_set(mode='OBJECT')
+
+            self.report({'INFO'}, "操作完成！请点击 Bake 继续")
+
         
             return {'FINISHED'}
     
