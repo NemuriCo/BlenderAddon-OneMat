@@ -389,6 +389,8 @@ class ONEMAT_OT_RemoveSelectedImageNode(bpy.types.Operator):
 
 
 ############Setp04 烘焙面板操作部分
+
+#######减选非Mesh物体
 class ONEMAT_OT_remove_non_mesh_objects(bpy.types.Operator):
     bl_idname = "onemat.remove_non_mesh_objects"
     bl_label = "减选非Mesh物体"
@@ -398,6 +400,7 @@ class ONEMAT_OT_remove_non_mesh_objects(bpy.types.Operator):
             if obj.type != 'MESH':
                 obj.select_set(False)
         return {'FINISHED'}
+
 
 ##################### 自发光金属度先不写
 # class ONEMAT_OT_bake_metal_to_emission(bpy.types.Operator):
@@ -441,6 +444,25 @@ class ONEMAT_OT_remove_non_mesh_objects(bpy.types.Operator):
 #                         node.inputs['Metallic'].default_value = 1.0
 #         return {'FINISHED'}
 
+##########烘焙按钮
+class ONEMAT_OT_bake_selected(bpy.types.Operator):
+    bl_idname = "onemat.bake_selected"
+    bl_label = "烘焙当前图像"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        obj = context.active_object
+        if not obj or obj.type != 'MESH':
+            self.report({'ERROR'}, "请选择一个网格物体")
+            return {'CANCELLED'}
+
+        try:
+            bpy.ops.object.bake('INVOKE_DEFAULT')
+            return {'FINISHED'}
+        except Exception as e:
+            self.report({'ERROR'}, f"烘焙失败: {e}")
+            return {'CANCELLED'}
+        
 ##########保存图像
 last_saved_image_path = ""
 
@@ -492,22 +514,37 @@ class ONEMAT_OT_save_active_image_popup(bpy.types.Operator):
         self.report({'ERROR'}, "未找到活动图像")
         return {'CANCELLED'}
     
-
-##########烘焙
-class ONEMAT_OT_bake_selected(bpy.types.Operator):
-    bl_idname = "onemat.bake_selected"
-    bl_label = "烘焙当前图像"
-    bl_options = {'REGISTER', 'UNDO'}
+#####################Step05 贴图
+# 删除材质插槽
+class ONEMAT_OT_remove_material_slots(bpy.types.Operator):
+    bl_idname = "onemat.remove_material_slots"
+    bl_label = "Remove Material Slots"
 
     def execute(self, context):
-        obj = context.active_object
-        if not obj or obj.type != 'MESH':
-            self.report({'ERROR'}, "请选择一个网格物体")
+        for obj in context.selected_objects:
+            if obj.type == 'MESH':
+                obj.data.materials.clear()
+        self.report({'INFO'}, "已删除材质插槽")
+        return {'FINISHED'}
+
+
+# 创建材质并赋予
+class ONEMAT_OT_create_material(bpy.types.Operator):
+    bl_idname = "onemat.create_material"
+    bl_label = "创建材质"
+
+    def execute(self, context):
+        # 读取材质名
+        mat_name = context.scene.onemat_material_name
+
+        # 检查是否已有材质
+        if mat_name in bpy.data.materials:
+            self.report({'WARNING'}, f"材质 '{mat_name}' 已存在")
             return {'CANCELLED'}
 
-        try:
-            bpy.ops.object.bake('INVOKE_DEFAULT')
-            return {'FINISHED'}
-        except Exception as e:
-            self.report({'ERROR'}, f"烘焙失败: {e}")
-            return {'CANCELLED'}
+        # 创建材质
+        mat = bpy.data.materials.new(name=mat_name)
+        mat.use_nodes = True
+
+        self.report({'INFO'}, f"创建材质: {mat.name}")
+        return {'FINISHED'}

@@ -173,17 +173,53 @@ class ONEMAT_PT_bake_panel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        props = context.scene
+        props = context.scene       
+
+
 
         box = layout.box()
+        box.label(text="烘焙")
 
+        #####减选
         box.operator("onemat.remove_non_mesh_objects", text="减选非Mesh物体")
-        box.prop(props, "onemat_bake_type", text="烘焙类型")
+
+        #####烘焙类型
+
+
+
+
 
         ##################### 自发光金属度先不写
         # row = box.row(align=True)
         # row.operator("onemat.bake_metal_to_emission", text="金属度 ➜ 自发光")
         # row.operator("onemat.bake_emission_to_metal", text="自发光 ➜ 金属度")
-        box.operator("onemat.bake_selected", icon='RENDER_STILL')
 
+        ############## 烘焙按钮
+        box.operator("onemat.bake_selected", icon='RENDER_STILL')
+        ############## 保存图像按钮
         box.operator("onemat.save_active_image_popup", icon='FILE_TICK')
+
+#################### Step05 贴图
+@reg_order(4)
+class ONEMAT_PT_texture_panel(bpy.types.Panel):
+    bl_label = "Setp05 贴图"
+    bl_idname = "ONEMAT_PT_texture_panel"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "OneMat"
+
+    def draw(self, context):
+        layout = self.layout
+        scene = context.scene
+
+        box = layout.box()
+        box.label(text="贴图")
+
+        # 输入框：材质名
+        box.prop(context.scene, "onemat_material_name", text="材质名")
+
+        # 删除材质插槽按钮
+        box.operator("onemat.remove_material_slots", text="删除材质插槽", icon="X")
+
+        # 创建材质按钮
+        box.operator("onemat.create_and_assign_material", text="创建材质并赋予", icon="MATERIAL")
