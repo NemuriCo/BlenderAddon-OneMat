@@ -183,7 +183,7 @@ class ONEMAT_PT_bake_panel(bpy.types.Panel):
         #####减选
         box.operator("onemat.remove_non_mesh_objects", text="减选非Mesh物体")
 
-        #####烘焙类型
+        #####烘焙类型1
         box.prop(props, "onemat_bake_type", text="烘焙类型")
 
 
