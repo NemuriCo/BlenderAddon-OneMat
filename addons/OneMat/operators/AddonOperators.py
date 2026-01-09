@@ -121,7 +121,7 @@ class OneMat_OT_OneMatGoUV(bpy.types.Operator):
             if bpy.context.object.mode != 'EDIT':
                 bpy.ops.object.mode_set(mode='EDIT')
 
-            # 选中所有面（可选）
+            # 选中所有面
             bpy.ops.mesh.select_all(action='SELECT')
 
             # 执行 Smart UV Project
@@ -137,7 +137,7 @@ class OneMat_OT_OneMatGoUV(bpy.types.Operator):
             bpy.ops.object.mode_set(mode='OBJECT')
 
             # 打包UV
-            bpy.ops.onemat.uvpack() 
+            bpy.ops.onemat.uvpackmaster3_pack() 
 
             self.report({'INFO'}, "操作完成！请点击 Bake 继续")
 
@@ -405,15 +405,6 @@ class OneMat_OT_OneMatGoSave(bpy.types.Operator):
 
 
 
-
-
-
-
-
-
-
-
-
 ######################## Step01 模型处理面板操作部分
 # 减选Mesh物体操作部分
 class OneMat_OT_SelectMesh(bpy.types.Operator):
@@ -531,18 +522,6 @@ class OneMat_OT_AddUVMapBatch(bpy.types.Operator):
                 obj.data.uv_layers.new(name=name)
         return {'FINISHED'}
 
-# 检测当前UV贴图操作部分
-# class OneMat_OT_CheckCurrentUVMap(bpy.types.Operator):
-#     bl_idname = "object.check_current_uvmap"
-#     bl_label = "Check Current UVMap"
-
-#     def execute(self, context):
-#         obj = context.active_object
-#         if obj and obj.type == 'MESH':
-#             active_uv = obj.data.uv_layers.active.name
-#             self.report({'INFO'}, f"当前UV贴图：{active_uv}")
-#             return {'FINISHED'}
-#         return {'CANCELLED'}
 
 #批量处理UV贴图操作部分
 
@@ -606,6 +585,34 @@ class OneMat_RemoveUVMapByIndex(bpy.types.Operator):
         self.report({'INFO'}, f"已从 {removed_count} 个对象中删除第 {uv_index} 个 UV")
         return {'FINISHED' if removed_count > 0 else 'CANCELLED'}
 
+#打包UV
+# 转入 Edit 模式（如果当前在 Object 模式）
+class OneMat_UVPack(bpy.types.Operator):
+    bl_idname = "object.uvpack"
+    bl_label = "打包UV"
+
+    def execute(self, context):
+            if bpy.context.object.mode != 'EDIT':
+                bpy.ops.object.mode_set(mode='EDIT')
+
+            # 选中所有面（可选）
+            bpy.ops.mesh.select_all(action='SELECT')
+
+            # 执行 Smart UV Project
+            bpy.ops.uv.smart_project(
+                angle_limit=1.155,  
+                island_margin=0.03,
+                area_weight=0.0,
+                correct_aspect=True,
+                scale_to_bounds=False
+            )
+
+            # 回到物体模式
+            bpy.ops.object.mode_set(mode='OBJECT')
+
+            # 打包UV
+            bpy.ops.onemat.uvpackmaster3_pack() 
+            return {'FINISHED'}
 
 # Step03 材质处理面板操作部分
 class ONEMAT_OT_SelectNoMaterialObjects(bpy.types.Operator):
@@ -1063,18 +1070,18 @@ class ONEMAT_OT_save_all_images(bpy.types.Operator):
 
 
 
-# 保存贴图
-class OneMat_OT_Save_Texture(bpy.types.Operator):
-    bl_idname = "onemat.save_texture"
-    bl_label = "保存所有贴图"
 
-    def execute(self, context):
 
-            return {'CANCELLED'}
-    
 
-class OneMat_OT_UVPack(bpy.types.Operator):
-    bl_idname = "onemat.uvpack"
+
+
+
+
+
+
+#########UVPackMaster3打包操作部分
+class OneMat_OT_UVPackMaster3_Pack(bpy.types.Operator):
+    bl_idname = "onemat.uvpackmaster3_pack"
     bl_label = "保存所有贴图"
 
     def execute(self, context):
@@ -1085,6 +1092,7 @@ class OneMat_OT_UVPack(bpy.types.Operator):
         bpy.ops.object.editmode_toggle()
 
         # Select all UVs
+        bpy.ops.uv.select_all(action='SELECT')
         bm = bmesh.from_edit_mesh(obj_to_pack.data)
         uv_layer = bm.loops.layers.uv.verify()
 
