@@ -7,6 +7,7 @@ from ...common.class_loader.auto_load import add_properties, remove_properties
 from ...common.i18n.dictionary import common_dictionary
 from ...common.i18n.i18n import load_dictionary
 
+
 # Add-on info
 bl_info = {
     "name": "OneMat",

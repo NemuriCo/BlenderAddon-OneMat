@@ -441,17 +441,53 @@ class ONEMAT_OT_bake_emission_to_metal(bpy.types.Operator):
                         node.inputs['Metallic'].default_value = 1.0
         return {'FINISHED'}
 
+##########保存图像
+last_saved_image_path = ""
 
-class ONEMAT_OT_save_active_image(bpy.types.Operator):
-    bl_idname = "onemat.save_active_image"
-    bl_label = "保存当前图像"
+class ONEMAT_OT_save_active_image_popup(bpy.types.Operator):
+    """保存当前活动图像"""
+    bl_idname = "onemat.save_active_image_popup"
+    bl_label = "保存当前图像为..."
+
+    filepath: bpy.props.StringProperty(subtype="FILE_PATH")
+
+    def invoke(self, context, event):
+        # 设置默认路径为上一次使用路径或当前 .blend 所在目录
+        global last_saved_image_path
+        self.filepath = last_saved_image_path or bpy.path.abspath("//T_Image.png")
+        context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
 
     def execute(self, context):
+        global last_saved_image_path
+
+        # 获取当前 Image Editor 中的图像
         area = next((a for a in context.screen.areas if a.type == 'IMAGE_EDITOR'), None)
-        if area:
-            for space in area.spaces:
-                if space.type == 'IMAGE_EDITOR' and space.image:
-                    space.image.save()
-                    self.report({'INFO'}, f"已保存图像：{space.image.name}")
-                    break
-        return {'FINISHED'}
+        if not area:
+            self.report({'ERROR'}, "未找到 Image Editor")
+            return {'CANCELLED'}
+
+        for space in area.spaces:
+            if space.type == 'IMAGE_EDITOR' and space.image:
+                image = space.image
+                if not image.has_data:
+                    self.report({'ERROR'}, f"图像 '{image.name}' 没有可保存的数据")
+                    return {'CANCELLED'}
+
+                # 设置图像保存路径
+                image.filepath_raw = self.filepath
+                image.file_format = 'PNG'  # 可改为其他格式
+                try:
+                    image.save()
+                except RuntimeError as e:
+                    self.report({'ERROR'}, f"保存失败：{e}")
+                    return {'CANCELLED'}
+
+                # 记录最后使用路径
+                last_saved_image_path = self.filepath
+
+                self.report({'INFO'}, f"图像已保存至: {self.filepath}")
+                return {'FINISHED'}
+
+        self.report({'ERROR'}, "未找到活动图像")
+        return {'CANCELLED'}

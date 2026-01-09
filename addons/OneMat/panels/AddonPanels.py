@@ -183,4 +183,4 @@ class ONEMAT_PT_bake_panel(bpy.types.Panel):
         row = box.row(align=True)
         row.operator("onemat.bake_metal_to_emission", text="金属度 ➜ 自发光")
         row.operator("onemat.bake_emission_to_metal", text="自发光 ➜ 金属度")
-        box.operator("onemat.save_active_image", text="保存图像")
+        box.operator("onemat.save_active_image_popup", icon='FILE_TICK')
