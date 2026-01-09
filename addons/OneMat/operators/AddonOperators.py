@@ -584,21 +584,62 @@ class ONEMAT_OT_create_and_assign_material(bpy.types.Operator):
             links = mat.node_tree.links
             nodes.clear()
 
-            # 添加所需节点
-            output = nodes.new(type='ShaderNodeOutputMaterial')
-            output.location = (400, 0)
+        # 添加主要节点
+        output = nodes.new(type='ShaderNodeOutputMaterial')
+        output.location = (600, 0)
 
-            bsdf = nodes.new(type='ShaderNodeBsdfPrincipled')
-            bsdf.location = (0, 0)
+        bsdf = nodes.new(type='ShaderNodeBsdfPrincipled')
+        bsdf.location = (300, 0)
 
-            tex = nodes.new(type='ShaderNodeTexImage')
-            tex.image = matched_image
-            tex.label = "Auto-Loaded"
-            tex.location = (-300, 0)
+        links.new(bsdf.outputs['BSDF'], output.inputs['Surface'])
 
-            # 连线
-            links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
-            links.new(bsdf.outputs["BSDF"], output.inputs["Surface"])
+        # 定义贴图类型与连接目标
+        map_info = {
+            "_Color":      ("Base Color", "Color"),
+            "_BaseColor":  ("Base Color", "Color"),
+            "_Normal":     ("Normal", "Color"),      # 后面处理法线贴图特殊处理
+            "_Metallic":   ("Metallic", "Color"),
+            "_Roughness":  ("Roughness", "Color"),
+            "_Emissive":   ("Emission Color", "Color"),
+            "_Alpha":      ("Alpha", "Color"),
+        }
+
+        # 当前材质名（剥除前缀 M_）
+        mat_base_name = name_input
+
+        y_offset = 0
+
+        for suffix, (bsdf_input, tex_output) in map_info.items():
+            # 构造可能的图像名（允许前缀 T_）
+            candidates = [
+                f"{mat_base_name}{suffix}",
+                f"T_{mat_base_name}{suffix}",
+            ]
+
+            matched_image = None
+            for img in bpy.data.images:
+                img_base = img.name.split('.')[0]
+                if img_base in candidates:
+                    matched_image = img
+                    break
+
+            if matched_image:
+                # 创建图像节点
+                tex_node = nodes.new(type='ShaderNodeTexImage')
+                tex_node.image = matched_image
+                tex_node.label = f"{bsdf_input}_Tex"
+                tex_node.location = (-300, y_offset)
+
+                if suffix == "_Normal":
+                    # 添加法线贴图处理节点
+                    normal_map = nodes.new(type='ShaderNodeNormalMap')
+                    normal_map.location = (0, y_offset)
+                    links.new(tex_node.outputs["Color"], normal_map.inputs["Color"])
+                    links.new(normal_map.outputs["Normal"], bsdf.inputs["Normal"])
+                else:
+                    links.new(tex_node.outputs[tex_output], bsdf.inputs[bsdf_input])
+
+                y_offset -= 300  # 每个贴图往下排
 
         # 赋予所有选中物体
         for obj in context.selected_objects:
