@@ -33,10 +33,11 @@ class OneMatOperator(bpy.types.Operator):
         context.active_object.location.x += addon_prefs.number
         return {'FINISHED'}
     
-# OneMat Go面板操作部分
-class OneMat_OT_OneMatGo(bpy.types.Operator): 
-    bl_idname = "object.one_mat_go"
-    bl_label = "一键处理"  # 可选
+############# OneMat Go面板操作部分
+#####模型处理
+class OneMat_OT_OneMatGoMesh(bpy.types.Operator): 
+    bl_idname = "object.one_mat_go_mesh"
+    bl_label = "一键处理"  
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -64,7 +65,15 @@ class OneMat_OT_OneMatGo(bpy.types.Operator):
 
             # 应用缩放
             bpy.ops.object.transform_apply(scale=True)
+            return {'FINISHED'}
+        
+#####UV处理
+class OneMat_OT_OneMatGoUV(bpy.types.Operator): 
+    bl_idname = "object.one_mat_go_uv"
+    bl_label = "一键处理"  
+    bl_options = {'REGISTER', 'UNDO'}
 
+    def execute(self, context):
             # 统一UV贴图命名
             bpy.ops.object.rename_first_uvmap()
 
@@ -102,6 +111,7 @@ class OneMat_OT_OneMatGo(bpy.types.Operator):
                     self.report({'WARNING'}, f"{obj.name} 没有第1个UV")
 
 
+
             # 智能展开UV
             # 转入 Edit 模式（如果当前在 Object 模式）
             if bpy.context.object.mode != 'EDIT':
@@ -120,26 +130,271 @@ class OneMat_OT_OneMatGo(bpy.types.Operator):
             )
 
             # 打包UV
-            bpy.ops.uvpackmaster3.pack()
 
+            # 回到物体模式
+
+            bpy.ops.object.mode_set(mode='OBJECT')
+        
+            return {'FINISHED'}
+    
+#####材质处理
+class OneMat_OT_OneMatGoMat(bpy.types.Operator): 
+    bl_idname = "object.one_mat_go_mat"
+    bl_label = "一键处理"  
+    bl_options = {'REGISTER', 'UNDO'}
+
+
+    def execute(self, context):
             # 批量添加图像纹理
+            scene = context.scene
+            prefix = "T_"
+            name = context.scene.onemat_go_name
+            suffix = "_Color"
+            width = 2048
+            height = 2048
+            use_alpha = True
 
+            # 如果选择的是 Null，则不使用后缀
+            image_name = f"{prefix}{name}" if suffix == "Null" else f"{prefix}{name}{suffix}"
+
+            # 如果图像不存在则创建
+            if image_name not in bpy.data.images:
+                bpy.data.images.new(
+                    name=image_name,
+                    width=width,
+                    height=height,
+                    alpha=use_alpha,
+                    float_buffer=False,
+                )
+
+            image = bpy.data.images[image_name]
+
+            # 遍历所有选中物体的材质
+            for obj in context.selected_objects:
+                if obj.type != 'MESH':
+                    continue
+
+                for slot in obj.material_slots:
+                    mat = slot.material
+                    if not mat or not mat.use_nodes:
+                        continue
+
+                    nodes = mat.node_tree.nodes
+                    links = mat.node_tree.links
+
+                    # 查找是否已有同名图像节点
+                    tex_node = next((n for n in nodes if n.type == 'TEX_IMAGE' and n.image and n.image.name == image_name), None)
+
+                    if not tex_node:
+                        tex_node = nodes.new(type="ShaderNodeTexImage")
+                        tex_node.image = image
+                        tex_node.label = image_name
+                        tex_node.name = image_name
+                        tex_node.location = (-300, 300)
+
+                    # 设置为活动纹理节点
+                    for n in nodes:
+                        if hasattr(n, "select"):
+                            n.select = False
+                    tex_node.select = True
+                    nodes.active = tex_node
+
+            self.report({'INFO'}, f"已添加图像：{image_name}") 
+            return {'FINISHED'}
+    
+#####烘焙
+class OneMat_OT_OneMatGoBake(bpy.types.Operator): 
+    bl_idname = "object.one_mat_go_bake"
+    bl_label = "一键处理"  
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
             # 减选非Mesh物体
+            bpy.ops.onemat.remove_non_mesh_objects()
 
             # 烘焙
+            bpy.ops.onemat.bake_selected()
+            return {'FINISHED'}
+#####贴图
+class OneMat_OT_OneMatGoTex(bpy.types.Operator): 
+    bl_idname = "object.one_mat_go_tex"
+    bl_label = "一键处理"  
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+            
+            # 删除第1套UV贴图
+            for obj in bpy.context.selected_objects:
+                if obj.type == 'MESH':
+                    uv_layers = obj.data.uv_layers
+                    if len(uv_layers) > 0:
+                        uv_layers.remove(uv_layers[0])
+
+            # 统一UV贴图命名
+            bpy.ops.object.rename_first_uvmap()
 
             # 删除所有材质插槽
+            bpy.ops.onemat.remove_material_slots()
 
             # 新建材质赋予
+            name_material_go = context.scene.onemat_go_name.strip()
+            if not name_material_go:
+                self.report({'WARNING'}, "材质名为空")
+                return {'CANCELLED'}
+
+            gomat_name = f"M_{name_material_go}"
+
+            # 若材质已存在则复用，否则创建
+            if gomat_name in bpy.data.materials:
+                mat = bpy.data.materials[gomat_name]
+                self.report({'INFO'}, f"材质 '{gomat_name}' 已存在，使用已有材质")
+            else:
+                mat = bpy.data.materials.new(name=gomat_name)
+                mat.use_nodes = True
+                self.report({'INFO'}, f"已创建材质: {gomat_name}")
+
+            # 图像名匹配逻辑（忽略前后缀）
+            matched_image = None
+
+            for img in bpy.data.images:
+                base = img.name.split('.')[0]  # 去除扩展名
+
+                # 去前缀
+                if base.startswith("T_"):
+                    base = base.replace("T_", "", 1)
+
+                # 去后缀（一个个判断）
+                if base.endswith("_Color"):
+                    base = base[:-len("_Color")]
+                elif base.endswith("_Normal"):
+                    base = base[:-len("_Normal")]
+                elif base.endswith("_Emissive"):
+                    base = base[:-len("_Emissive")]
+                elif base.endswith("_Alpha"):
+                    base = base[:-len("_Alpha")]
+                elif base.endswith("_Metallic"):
+                    base = base[:-len("_Metallic")]
+                elif base.endswith("_Roughness"):
+                    base = base[:-len("_Roughness")]
+                elif base.endswith("_BaseColor"):
+                    base = base[:-len("_BaseColor")]
+
+                if base == name_material_go:
+                    matched_image = img
+                    break
+
+            # 如果图像匹配成功，添加到材质节点
+            if matched_image:
+                nodes = mat.node_tree.nodes
+                links = mat.node_tree.links
+                nodes.clear()
+
+            # 添加主要节点
+            output = nodes.new(type='ShaderNodeOutputMaterial')
+            output.location = (600, 0)
+
+            bsdf = nodes.new(type='ShaderNodeBsdfPrincipled')
+            bsdf.location = (300, 0)
+
+            links.new(bsdf.outputs['BSDF'], output.inputs['Surface'])
+
+            # 定义贴图类型与连接目标
+            map_info = {
+                "_Color":      ("Base Color", "Color"),
+                "_BaseColor":  ("Base Color", "Color"),
+                "_Normal":     ("Normal", "Color"),      # 后面处理法线贴图特殊处理
+                "_Metallic":   ("Metallic", "Color"),
+                "_Roughness":  ("Roughness", "Color"),
+                "_Emissive":   ("Emission Color", "Color"),
+                "_Alpha":      ("Alpha", "Color"),
+            }
+
+            # 当前材质名（剥除前缀 M_）
+            mat_base_name = name_material_go
+
+            y_offset = 0
+
+            for suffix, (bsdf_input, tex_output) in map_info.items():
+                # 构造可能的图像名（允许前缀 T_）
+                candidates = [
+                    f"{mat_base_name}{suffix}",
+                    f"T_{mat_base_name}{suffix}",
+                ]
+
+                matched_image = None
+                for img in bpy.data.images:
+                    img_base = img.name.split('.')[0]
+                    if img_base in candidates:
+                        matched_image = img
+                        break
+
+                if matched_image:
+                    # 创建图像节点
+                    tex_node = nodes.new(type='ShaderNodeTexImage')
+                    tex_node.image = matched_image
+                    tex_node.label = f"{bsdf_input}_Tex"
+                    tex_node.location = (-300, y_offset)
+
+                    if suffix == "_Normal":
+                        # 添加法线贴图处理节点
+                        normal_map = nodes.new(type='ShaderNodeNormalMap')
+                        normal_map.location = (0, y_offset)
+                        links.new(tex_node.outputs["Color"], normal_map.inputs["Color"])
+                        links.new(normal_map.outputs["Normal"], bsdf.inputs["Normal"])
+                    else:
+                        links.new(tex_node.outputs[tex_output], bsdf.inputs[bsdf_input])
+
+                    y_offset -= 300  # 每个贴图往下排
+
+            # 赋予所有选中物体
+            for obj in context.selected_objects:
+                if obj.type == 'MESH':
+                    if obj.data.materials:
+                        obj.data.materials[0] = mat
+                    else:
+                        obj.data.materials.append(mat)
+
+
+            return {'FINISHED'}
 
 
 
 
 
 
-        return {'FINISHED'}
 
-# Step01 模型处理面板操作部分
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################## Step01 模型处理面板操作部分
 # 减选Mesh物体操作部分
 class OneMat_OT_SelectMesh(bpy.types.Operator):
     '''在当前选择物体中减选Mesh物体'''
@@ -665,7 +920,7 @@ class ONEMAT_OT_create_and_assign_material(bpy.types.Operator):
     bl_description = "使用输入的名称创建材质，并绑定到选中物体，同时添加匹配图像贴图"
 
     def execute(self, context):
-        name_input = context.scene.onemat_material_name.strip()
+        name_input = context.scene.onemat_go_name.strip()
         if not name_input:
             self.report({'WARNING'}, "材质名为空")
             return {'CANCELLED'}

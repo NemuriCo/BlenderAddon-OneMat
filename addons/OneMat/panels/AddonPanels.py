@@ -26,13 +26,17 @@ class OneMat_PT_GoPanel(BasePanel, bpy.types.Panel):
 
         # 创建一个带边框的 Box 区域
         box = layout.box()
-        box.label(text="！")
+        box.label(text="一键开冲！")
 
         row = box.row()
         row.prop(context.scene, "onemat_go_name", text="名称")
 
         # 添加两个按钮
-        box.operator("object.one_mat_go", text="1")
+        box.operator("object.one_mat_go_mesh", text="模型处理")
+        box.operator("object.one_mat_go_uv", text="UV处理")
+        box.operator("object.one_mat_go_mat", text="材质处理")
+        box.operator("object.one_mat_go_bake", text="烘焙")
+        box.operator("object.one_mat_go_tex", text="贴图")
 
 
 
