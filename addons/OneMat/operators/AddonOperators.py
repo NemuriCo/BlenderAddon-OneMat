@@ -400,6 +400,8 @@ class ONEMAT_OT_remove_non_mesh_objects(bpy.types.Operator):
             if obj.type != 'MESH':
                 obj.select_set(False)
         return {'FINISHED'}
+    
+
 
 
 ##################### 自发光金属度先不写
