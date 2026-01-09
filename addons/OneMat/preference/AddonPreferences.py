@@ -14,19 +14,7 @@ class ExampleAddonPreferences(AddonPreferences):
     # https://docs.blender.org/api/current/bpy.props.html
     # The name can't be dynamically translated during blender programming running as they are defined
     # when the class is registered, i.e. we need to restart blender for the property name to be correctly translated.
-    filepath: StringProperty(
-        name="Resource Folder",
-        default=os.path.join(os.path.expanduser("~"), "Documents", __addon_name__),
-        subtype='DIR_PATH',
-    )
-    number: IntProperty(
-        name="Int Config",
-        default=2,
-    )
-    boolean: BoolProperty(
-        name="Boolean Config",
-        default=False,
-    )
+
 
     def draw(self, context: bpy.types.Context):
         layout = self.layout

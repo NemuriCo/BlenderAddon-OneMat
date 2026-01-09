@@ -471,7 +471,6 @@ class ONEMAT_OT_save_active_image_popup(bpy.types.Operator):
     bl_idname = "onemat.save_active_image_popup"
     bl_label = "保存当前图像为..."
 
-    filepath: bpy.props.StringProperty(subtype="FILE_PATH")
 
     def invoke(self, context, event):
         # 设置默认路径为上一次使用路径或当前 .blend 所在目录
