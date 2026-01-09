@@ -267,4 +267,7 @@ class ONEMAT_PT_texture_panel(bpy.types.Panel):
 
         box.operator("onemat.create_and_assign_material", icon="MATERIAL")
 
+        row = box.row()
+        box.operator("onemat.save_texture", text="保存所有贴图")
+
         

@@ -868,56 +868,7 @@ class ONEMAT_OT_bake_selected(bpy.types.Operator):
             return {'CANCELLED'}
             
         
-##########保存图像
-last_saved_image_path = ""
 
-class ONEMAT_OT_save_active_image_popup(bpy.types.Operator):
-    """保存当前活动图像"""
-    bl_idname = "onemat.save_active_image_popup"
-    bl_label = "保存当前图像为..."
-
-
-    def invoke(self, context, event):
-        # 设置默认路径为上一次使用路径或当前 .blend 所在目录
-        global last_saved_image_path
-        self.filepath = last_saved_image_path or bpy.path.abspath("//T_Image.png")
-        context.window_manager.fileselect_add(self)
-        return {'RUNNING_MODAL'}
-
-    def execute(self, context):
-        global last_saved_image_path
-
-        # 获取当前 Image Editor 中的图像
-        area = next((a for a in context.screen.areas if a.type == 'IMAGE_EDITOR'), None)
-        if not area:
-            self.report({'ERROR'}, "未找到 Image Editor")
-            return {'CANCELLED'}
-
-        for space in area.spaces:
-            if space.type == 'IMAGE_EDITOR' and space.image:
-                image = space.image
-                if not image.has_data:
-                    self.report({'ERROR'}, f"图像 '{image.name}' 没有可保存的数据")
-                    return {'CANCELLED'}
-
-                # 设置图像保存路径
-                image.filepath_raw = self.filepath
-                image.file_format = 'PNG'  # 可改为其他格式
-                try:
-                    image.save()
-                except RuntimeError as e:
-                    self.report({'ERROR'}, f"保存失败：{e}")
-                    return {'CANCELLED'}
-
-                # 记录最后使用路径
-                last_saved_image_path = self.filepath
-
-                self.report({'INFO'}, f"图像已保存至: {self.filepath}")
-                return {'FINISHED'}
-
-        self.report({'ERROR'}, "未找到活动图像")
-        return {'CANCELLED'}
-    
 #####################Step05 贴图
 # 删除材质插槽
 class ONEMAT_OT_remove_material_slots(bpy.types.Operator):
@@ -931,6 +882,7 @@ class ONEMAT_OT_remove_material_slots(bpy.types.Operator):
         self.report({'INFO'}, "已删除材质插槽")
         return {'FINISHED'}
 
+# 创建并赋予材质
 class ONEMAT_OT_create_and_assign_material(bpy.types.Operator):
     bl_idname = "onemat.create_and_assign_material"
     bl_label = "创建材质并赋予"
@@ -1055,3 +1007,12 @@ class ONEMAT_OT_create_and_assign_material(bpy.types.Operator):
                     obj.data.materials.append(mat)
 
         return {'FINISHED'}
+
+# 保存贴图
+class OneMat_OT_Save_Texture(bpy.types.Operator):
+    bl_idname = "onemat.save_texture"
+    bl_label = "保存所有贴图"
+
+    def execute(self, context):
+
+            return {'CANCELLED'}
