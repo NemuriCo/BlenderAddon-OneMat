@@ -68,7 +68,7 @@ class OneMat_OT_OneMatGoMesh(bpy.types.Operator):
                     bpy.ops.object.modifier_apply(modifier=mod.name)
 
             # 应用缩放
-            bpy.ops.object.transform_apply(scale=True)
+            bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
             return {'FINISHED'}
         
 #####UV处理
