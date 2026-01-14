@@ -39,7 +39,7 @@ class OneMatOperator(bpy.types.Operator):
 ############# OneMat Go面板操作部分
 #####模型处理
 class OneMat_OT_OneMatGoMesh(bpy.types.Operator): 
-    '''一键独立化数据，转网格（仅限非MESH对象），应用修改器（保留WeightedNormal和Armature），应用缩放'''
+    '''一键独立化数据,转网格(仅限非MESH对象),应用修改器(保留WeightedNormal和Armature),应用缩放'''
     bl_idname = "object.one_mat_go_mesh"
     bl_label = "一键处理"  
     bl_options = {'REGISTER', 'UNDO'}
