@@ -39,37 +39,52 @@ class OneMatOperator(bpy.types.Operator):
 ############# OneMat Go面板操作部分
 #####模型处理
 class OneMat_OT_OneMatGoMesh(bpy.types.Operator): 
-    '''一键独立化数据，转网格，应用修改器，应用缩放'''
+    '''一键独立化数据，转网格（仅限非MESH对象），应用修改器（保留WeightedNormal和Armature），应用缩放'''
     bl_idname = "object.one_mat_go_mesh"
     bl_label = "一键处理"  
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        # 获取选中的对象
-        selected_objects = [obj for obj in context.selected_objects if obj.type == 'MESH']
+        selected_objects = [obj for obj in context.selected_objects if obj.type in {'MESH', 'CURVE', 'SURFACE', 'META', 'FONT'}]
 
         if not selected_objects:
-            self.report({'WARNING'}, "未选中任何网格对象")
+            self.report({'WARNING'}, "未选中任何可转换的对象")
             return {'CANCELLED'}
 
         for obj in selected_objects:
-            # 使其独立化：物体 & 数据
+            context.view_layer.objects.active = obj
+            obj.select_set(True)
+
+            # 独立化
             bpy.ops.object.make_single_user(type='SELECTED_OBJECTS', object=True, obdata=True)
 
-            for obj in bpy.context.selected_objects:
+            # ✅ 如果不是 MESH 再转换
+            if obj.type != 'MESH':
                 try:
                     bpy.ops.object.convert(target='MESH')
-                except:
-                    print(f"无法转换: {obj.name}")
+                except Exception as e:
+                    print(f"[转换失败] {obj.name}: {e}")
+                    continue  # 转换失败就跳过后续步骤
 
+            # 再次确认对象为 MESH（有些类型转换失败后依然不是）
+            if obj.type != 'MESH':
+                print(f"[跳过] {obj.name} 不是 MESH 类型")
+                continue
 
-            # 应用所有修改器
-            for mod in obj.modifiers:
-                    bpy.ops.object.modifier_apply(modifier=mod.name)
+            # ✅ 应用所有非 WeightedNormal 和 Armature 的修改器
+            to_keep = {'WEIGHTED_NORMAL', 'ARMATURE'}
+            for mod in list(obj.modifiers):  # 避免遍历中删除出错
+                if mod.type not in to_keep:
+                    try:
+                        bpy.ops.object.modifier_apply(modifier=mod.name)
+                    except Exception as e:
+                        print(f"[应用失败] {mod.name} on {obj.name}: {e}")
 
-            # 应用缩放
+            # ✅ 应用缩放
             bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-            return {'FINISHED'}
+
+        return {'FINISHED'}
+
         
 #####UV处理
 class OneMat_OT_OneMatGoUV(bpy.types.Operator): 
